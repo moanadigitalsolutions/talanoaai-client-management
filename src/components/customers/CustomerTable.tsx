@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { 
   MoreVerticalIcon,
@@ -27,7 +27,7 @@ interface CustomerTableProps {
 }
 
 export default function CustomerTable({ customers, onCustomerUpdate }: CustomerTableProps) {
-  const handleDeleteCustomer = async (customerId: string) => {
+  const handleDeleteCustomer = useCallback(async (customerId: string) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
         const response = await fetch(`/api/customers/${customerId}`, {
@@ -44,7 +44,63 @@ export default function CustomerTable({ customers, onCustomerUpdate }: CustomerT
         alert('Failed to delete customer');
       }
     }
-  };
+  }, [onCustomerUpdate]);
+
+  const rows = useMemo(() => customers.map((customer) => (
+    <tr key={customer.id} className="hover:bg-neutral-50">
+      <td className="px-6 py-4 whitespace-nowrap text-xs font-medium text-neutral-900">
+        {customer.id}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="text-xs font-medium text-neutral-900">
+          {customer.firstName} {customer.lastName}
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-900">
+        {customer.email}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-900">
+        {customer.mobile || '-'}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+          customer.status === 'active' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-neutral-100 text-neutral-800'
+        }`}>
+          {customer.status}
+        </span>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-900">
+        {customer.totalBookings}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-900">
+        {formatDate(customer.createdAt)}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-500">
+        <div className="flex items-center space-x-2">
+          <Link 
+            href={`/customers/${customer.id}`}
+            className="text-salesforce-600 hover:text-salesforce-700"
+          >
+            <EyeIcon className="h-4 w-4" />
+          </Link>
+          <Link 
+            href={`/customers/${customer.id}/edit`}
+            className="text-salesforce-600 hover:text-salesforce-700"
+          >
+            <EditIcon className="h-4 w-4" />
+          </Link>
+          <button 
+            className="text-red-600 hover:text-red-700"
+            onClick={() => handleDeleteCustomer(customer.id)}
+          >
+            <TrashIcon className="h-4 w-4" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  )), [customers, handleDeleteCustomer]);
 
   return (
     <div className="overflow-x-auto">
@@ -78,61 +134,7 @@ export default function CustomerTable({ customers, onCustomerUpdate }: CustomerT
           </tr>
         </thead>
         <tbody className="divide-y divide-neutral-200">
-          {customers.map((customer) => (
-            <tr key={customer.id} className="hover:bg-neutral-50">
-              <td className="px-6 py-4 whitespace-nowrap text-xs font-medium text-neutral-900">
-                {customer.id}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-xs font-medium text-neutral-900">
-                  {customer.firstName} {customer.lastName}
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-900">
-                {customer.email}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-900">
-                {customer.mobile || '-'}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                  customer.status === 'active' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-neutral-100 text-neutral-800'
-                }`}>
-                  {customer.status}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-900">
-                {customer.totalBookings}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-900">
-                {formatDate(customer.createdAt)}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-500">
-                <div className="flex items-center space-x-2">
-                  <Link 
-                    href={`/customers/${customer.id}`}
-                    className="text-salesforce-600 hover:text-salesforce-700"
-                  >
-                    <EyeIcon className="h-4 w-4" />
-                  </Link>
-                  <Link 
-                    href={`/customers/${customer.id}/edit`}
-                    className="text-salesforce-600 hover:text-salesforce-700"
-                  >
-                    <EditIcon className="h-4 w-4" />
-                  </Link>
-                  <button 
-                    className="text-red-600 hover:text-red-700"
-                    onClick={() => handleDeleteCustomer(customer.id)}
-                  >
-                    <TrashIcon className="h-4 w-4" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
+          {rows}
         </tbody>
       </table>
       

@@ -11,7 +11,8 @@ import {
 } from 'lucide-react';
 import DashboardCard from '@/components/dashboard/DashboardCard';
 import RecentCustomers from '@/components/dashboard/RecentCustomers';
-import BookingChart from '@/components/dashboard/BookingChart';
+import dynamic from 'next/dynamic';
+const BookingChart = dynamic(() => import('@/components/dashboard/BookingChart'), { ssr: false, loading: () => <div className="h-80 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-salesforce-600"></div></div> });
 import UpcomingAppointments from '@/components/dashboard/UpcomingAppointments';
 import ClientOnly from '@/components/common/ClientOnly';
 

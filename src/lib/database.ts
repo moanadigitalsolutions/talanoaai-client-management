@@ -109,6 +109,9 @@ export function initializeDatabase() {
   
   // Insert sample data if database is empty
   insertSampleData();
+
+  // Create indexes after tables & seed
+  createIndexes();
 }
 
 function insertDefaultTimeSlots() {
@@ -251,10 +254,52 @@ function insertSampleData() {
   }
 }
 
+// Performance: add indexes for frequent lookups & ordering
+function createIndexes() {
+  try {
+    db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email);
+      CREATE INDEX IF NOT EXISTS idx_customers_createdAt ON customers(createdAt DESC);
+      CREATE INDEX IF NOT EXISTS idx_appointments_date_time ON appointments(date, time);
+      CREATE INDEX IF NOT EXISTS idx_appointments_customer ON appointments(customerId);
+      CREATE INDEX IF NOT EXISTS idx_time_slots_day_time ON time_slots(day, time);
+      CREATE INDEX IF NOT EXISTS idx_activity_notes_customer_date ON activity_notes(customerId, date DESC, time DESC);
+      CREATE INDEX IF NOT EXISTS idx_documents_customer_date ON documents(customerId, uploadDate DESC);
+    `);
+  } catch (e) {
+    console.error('Failed creating indexes', e);
+  }
+}
+
 // Database query functions
 export const customerQueries = {
-  getAll: () => db.prepare('SELECT * FROM customers ORDER BY createdAt DESC').all(),
+  getAll: (limit?: number) => {
+    if (limit) {
+      return db.prepare('SELECT * FROM customers ORDER BY createdAt DESC LIMIT ?').all(limit);
+    }
+    return db.prepare('SELECT * FROM customers ORDER BY createdAt DESC').all();
+  },
+  getByEmail: (email: string) => db.prepare('SELECT * FROM customers WHERE email = ?').get(email),
   getById: (id: string) => db.prepare('SELECT * FROM customers WHERE id = ?').get(id),
+  getPaginated: (limit: number, offset: number) => db.prepare('SELECT * FROM customers ORDER BY createdAt DESC LIMIT ? OFFSET ?').all(limit, offset),
+  countAll: () => (db.prepare('SELECT COUNT(*) as count FROM customers').get() as any).count as number,
+  searchPaginated: (term: string, limit: number, offset: number) => {
+    const like = `%${term.toLowerCase()}%`;
+    return db.prepare(`
+      SELECT * FROM customers
+      WHERE lower(firstName) LIKE ? OR lower(lastName) LIKE ? OR lower(email) LIKE ?
+      ORDER BY createdAt DESC
+      LIMIT ? OFFSET ?
+    `).all(like, like, like, limit, offset);
+  },
+  countSearch: (term: string) => {
+    const like = `%${term.toLowerCase()}%`;
+    return (db.prepare(`
+      SELECT COUNT(*) as count FROM customers
+      WHERE lower(firstName) LIKE ? OR lower(lastName) LIKE ? OR lower(email) LIKE ?
+    `).get(like, like, like) as any).count as number;
+  },
+  incrementTotalBookings: (id: string) => db.prepare('UPDATE customers SET totalBookings = totalBookings + 1, updatedAt = CURRENT_TIMESTAMP WHERE id = ?').run(id),
   create: (customer: any) => db.prepare(`
     INSERT INTO customers (id, firstName, lastName, email, mobile, dateOfBirth, address, city, state, zipCode, status, notes)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

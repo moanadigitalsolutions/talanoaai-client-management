@@ -27,7 +27,9 @@ export default function RecentCustomers() {
       const response = await fetch('/api/customers?limit=4');
       if (response.ok) {
         const data = await response.json();
-        setCustomers(data);
+        // Handle both old array format and new paginated format
+        const customersArray = Array.isArray(data) ? data : data.data || [];
+        setCustomers(customersArray);
       } else {
         console.error('Failed to fetch recent customers');
       }

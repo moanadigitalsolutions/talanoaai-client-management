@@ -1,16 +1,14 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
+import {
   ArrowLeftIcon,
   EditIcon,
   PhoneIcon,
   MailIcon,
   CalendarIcon,
-  MapPinIcon,
   FileTextIcon,
-  PlusIcon,
   UploadIcon
 } from 'lucide-react';
 
@@ -31,64 +29,36 @@ interface Customer {
   notes: string;
 }
 
-const mockCustomer: Customer = {
-  id: 'CUST001',
-  firstName: 'John',
-  lastName: 'Smith',
-  email: 'john.smith@email.com',
-  mobile: '+1 (555) 123-4567',
-  address: '123 Main Street',
-  city: 'New York',
-  state: 'NY',
-  zipCode: '10001',
-  joinDate: '2024-08-10',
-  dateOfBirth: '1985-03-15',
-  status: 'active',
-  totalBookings: 12,
-  notes: 'Prefers morning appointments. Has specific dietary requirements.',
-};
-
-const mockDocuments = [
-  { id: 1, name: 'ID Document.pdf', uploadDate: '2024-08-10', size: '1.2 MB' },
-  { id: 2, name: 'Medical Certificate.pdf', uploadDate: '2024-08-12', size: '856 KB' },
-];
-
-const mockActivityNotes = [
-  {
-    id: 1,
-    date: '2024-08-15',
-    time: '10:30 AM',
-    type: 'appointment',
-    description: 'Completed consultation session. Client satisfied with the service.',
-  },
-  {
-    id: 2,
-    date: '2024-08-10',
-    time: '2:15 PM',
-    type: 'note',
-    description: 'Client requested to reschedule next appointment to morning slot.',
-  },
-  {
-    id: 3,
-    date: '2024-08-08',
-    time: '9:45 AM',
-    type: 'appointment',
-    description: 'Initial meeting completed. Discussed requirements and expectations.',
-  },
-];
-
-export default function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const [customer] = useState<Customer>(mockCustomer);
-  const [documents] = useState(mockDocuments);
-  const [activityNotes] = useState(mockActivityNotes);
-  const [newNote, setNewNote] = useState('');
-  const [customerId, setCustomerId] = useState<string>('');
+export default function CustomerDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params;
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [activityNotes, setActivityNotes] = useState<any[]>([]);
+  const [newNote, setNewNote] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    params.then((resolvedParams) => {
-      setCustomerId(resolvedParams.id);
-    });
-  }, [params]);
+    const fetchCustomer = async () => {
+      try {
+        const res = await fetch(`/api/customers/${id}`);
+        if (!res.ok) throw new Error('Failed to load customer');
+        const data = await res.json();
+        setCustomer({
+          ...data.customer,
+          joinDate: data.customer.createdAt,
+          totalBookings: data.customer.totalBookings || 0
+        });
+        setDocuments(data.documents || []);
+        setActivityNotes(data.activityNotes || []);
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCustomer();
+  }, [id]);
 
   const addNote = () => {
     if (newNote.trim()) {
@@ -96,6 +66,16 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
       setNewNote('');
     }
   };
+
+  if (loading) {
+    return <div className="p-6">Loading customer...</div>;
+  }
+  if (error) {
+    return <div className="p-6 text-red-600">{error}</div>;
+  }
+  if (!customer) {
+    return <div className="p-6">Customer not found.</div>;
+  }
 
   return (
     <div className="p-6 space-y-6 bg-neutral-50 min-h-full">
@@ -111,7 +91,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
           </Link>
         </div>
         <Link 
-          href={`/customers/${customerId}/edit`}
+          href={`/customers/${id}/edit`}
           className="slds-button slds-button-brand flex items-center space-x-2"
         >
           <EditIcon className="h-4 w-4" />
@@ -140,7 +120,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
                 </div>
                 <div className="flex items-center space-x-3">
                   <CalendarIcon className="h-5 w-5 text-neutral-500" />
-                  <span className="text-sm text-neutral-700">Joined {customer.joinDate}</span>
+                  <span className="text-sm text-neutral-700">Joined {customer.joinDate?.split('T')[0]}</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${

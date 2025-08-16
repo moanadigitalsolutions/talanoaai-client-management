@@ -84,7 +84,8 @@ export default function UpcomingAppointments() {
   return (
     <div className="space-y-4">
       {appointments.map((appointment) => {
-        const appointmentDate = new Date(appointment.dateTime);
+        const parsed = Date.parse(appointment.dateTime);
+        const appointmentDate = isNaN(parsed) ? null : new Date(parsed);
         return (
           <div key={appointment.id} className="group relative bg-gradient-to-r from-white to-neutral-50 border border-neutral-200 rounded-lg p-4 hover:shadow-md hover:border-neutral-300 transition-all duration-200">
             {/* Status indicator */}
@@ -127,12 +128,12 @@ export default function UpcomingAppointments() {
                 <div className="flex items-center space-x-4 mt-3">
                   <div className="flex items-center space-x-1 text-xs text-neutral-600">
                     <CalendarIcon className="h-3 w-3" />
-                    <span>{formatDate(appointmentDate)}</span>
+                    <span>{appointmentDate ? formatDate(appointmentDate) : 'Invalid Date'}</span>
                   </div>
-                  <div className="flex items-center space-x-1 text-xs text-neutral-600">
-                    <ClockIcon className="h-3 w-3" />
-                    <span>{formatTime(appointmentDate)}</span>
-                  </div>
+                    <div className="flex items-center space-x-1 text-xs text-neutral-600">
+                      <ClockIcon className="h-3 w-3" />
+                      <span>{appointmentDate ? formatTime(appointmentDate) : '--'}</span>
+                    </div>
                 </div>
                 
                 {appointment.notes && (

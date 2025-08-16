@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { appointmentQueries, timeSlotQueries } from '@/lib/database';
+import { appointmentQueries, timeSlotQueries, customerQueries } from '@/lib/database';
 
 interface Appointment {
   id: string;
@@ -18,31 +18,31 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit');
-    const upcoming = searchParams.get('upcoming');
-    
+    const upcoming = searchParams.get('upcoming') === 'true';
+
     let appointments: Appointment[] = appointmentQueries.getAll() as Appointment[];
-    
-    // Filter upcoming appointments if requested
-    if (upcoming === 'true') {
-      const now = new Date();
-      appointments = appointments.filter((appointment: Appointment) => {
-        const appointmentDateTime = new Date(appointment.dateTime || `${appointment.date} ${appointment.time}`);
-        return appointmentDateTime > now;
-      });
-      
-      // Sort by date/time
-      appointments.sort((a: Appointment, b: Appointment) => {
-        const dateA = new Date(a.dateTime || `${a.date} ${a.time}`);
-        const dateB = new Date(b.dateTime || `${b.date} ${b.time}`);
-        return dateA.getTime() - dateB.getTime();
-      });
+
+    // Normalize appointments with computed dateTime once
+    appointments = appointments.map(a => ({
+      ...a,
+      dateTime: a.dateTime || `${a.date}T${a.time}:00` // ISO-ish for parsing
+    }));
+
+    if (upcoming) {
+      const now = Date.now();
+      appointments = appointments.filter(a => {
+        const ts = Date.parse(a.dateTime!);
+        return !isNaN(ts) && ts > now;
+      }).sort((a, b) => Date.parse(a.dateTime!) - Date.parse(b.dateTime!));
     }
-    
+
     if (limit) {
       const limitNum = parseInt(limit, 10);
-      appointments = appointments.slice(0, limitNum);
+      if (!isNaN(limitNum) && limitNum > 0) {
+        appointments = appointments.slice(0, limitNum);
+      }
     }
-    
+
     return NextResponse.json(appointments);
   } catch (error) {
     console.error('Error fetching appointments:', error);
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     // Generate appointment ID
     const appointmentId = `APPT${Date.now()}`;
     
-    const appointment = {
+  const appointment = {
       id: appointmentId,
       customerId: body.customerId,
       title: body.title,
@@ -72,7 +72,9 @@ export async function POST(request: NextRequest) {
 
     console.log('Creating appointment:', appointment);
     
-    const createResult = appointmentQueries.create(appointment);
+  const createResult = appointmentQueries.create(appointment);
+  // Increment customer's booking count
+  try { customerQueries.incrementTotalBookings(appointment.customerId); } catch (e) { console.warn('Failed to increment booking count', e); }
     console.log('Appointment create result:', createResult);
     
     // Update time slot availability if provided
@@ -88,7 +90,7 @@ export async function POST(request: NextRequest) {
       console.log('Time slot update result:', updateResult);
     }
     
-    return NextResponse.json({ message: 'Appointment created successfully', id: appointmentId }, { status: 201 });
+  return NextResponse.json({ message: 'Appointment created successfully', id: appointmentId, dateTime: `${appointment.date}T${appointment.time}:00` }, { status: 201 });
   } catch (error) {
     console.error('Error creating appointment:', error);
     console.error('Error details:', error instanceof Error ? error.message : error);
