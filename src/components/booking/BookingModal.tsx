@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { XIcon, CalendarIcon, ClockIcon, UserIcon } from 'lucide-react';
+import { XIcon, CalendarIcon, ClockIcon, UserIcon, MailIcon, PhoneIcon } from 'lucide-react';
 
 interface Customer {
   id: string;
@@ -30,42 +30,117 @@ const BookingModal: React.FC<BookingModalProps> = ({
   selectedSlot,
   onBookingConfirm
 }) => {
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [selectedCustomerId, setSelectedCustomerId] = useState('');
+  // Customer form state
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerMobile, setCustomerMobile] = useState('');
   const [serviceType, setServiceType] = useState('');
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
+  const [existingCustomer, setExistingCustomer] = useState<Customer | null>(null);
+  const [checkingCustomer, setCheckingCustomer] = useState(false);
 
+  // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
-      fetchCustomers();
+      setCustomerName('');
+      setCustomerEmail('');
+      setCustomerMobile('');
+      setServiceType('');
+      setNotes('');
+      setExistingCustomer(null);
     }
   }, [isOpen]);
 
-  const fetchCustomers = async () => {
-    try {
-      const response = await fetch('/api/customers');
-      if (response.ok) {
-        const data = await response.json();
-        setCustomers(data);
+  // Check if customer exists when email changes
+  useEffect(() => {
+    const checkCustomerExists = async () => {
+      if (customerEmail && customerEmail.includes('@')) {
+        setCheckingCustomer(true);
+        try {
+          const response = await fetch(`/api/customers?email=${encodeURIComponent(customerEmail)}`);
+          if (response.ok) {
+            const customers = await response.json();
+            const foundCustomer = customers.find((c: Customer) => 
+              c.email.toLowerCase() === customerEmail.toLowerCase()
+            );
+            
+            if (foundCustomer) {
+              setExistingCustomer(foundCustomer);
+              setCustomerName(`${foundCustomer.firstName} ${foundCustomer.lastName}`);
+              setCustomerMobile(foundCustomer.mobile || '');
+            } else {
+              setExistingCustomer(null);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking customer:', error);
+        } finally {
+          setCheckingCustomer(false);
+        }
+      } else {
+        setExistingCustomer(null);
       }
-    } catch (error) {
-      console.error('Error fetching customers:', error);
+    };
+
+    const timeoutId = setTimeout(checkCustomerExists, 500); // Debounce
+    return () => clearTimeout(timeoutId);
+  }, [customerEmail]);
+
+  const createOrUpdateCustomer = async (): Promise<string> => {
+    if (existingCustomer) {
+      // Customer exists, return their ID
+      return existingCustomer.id;
     }
+
+    // Create new customer
+    const [firstName, ...lastNameParts] = customerName.trim().split(' ');
+    const lastName = lastNameParts.join(' ') || '';
+
+    const customerData = {
+      firstName: firstName || 'Unknown',
+      lastName: lastName || '',
+      email: customerEmail,
+      mobile: customerMobile || '',
+      status: 'active'
+    };
+
+    const response = await fetch('/api/customers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(customerData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create customer');
+    }
+
+    const newCustomer = await response.json();
+    return newCustomer.id;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedCustomerId || !serviceType || !selectedSlot) {
+    if (!customerName.trim() || !customerEmail.trim() || !serviceType || !selectedSlot) {
       alert('Please fill in all required fields');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(customerEmail)) {
+      alert('Please enter a valid email address');
       return;
     }
 
     setLoading(true);
 
     try {
-      const selectedCustomer = customers.find(c => c.id === selectedCustomerId);
+      // Create or get customer ID
+      const customerId = await createOrUpdateCustomer();
       
       // Get the date for the selected day
       const getDayDate = (dayName: string) => {
@@ -89,7 +164,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
       };
 
       const appointmentData = {
-        customerId: selectedCustomerId,
+        customerId: customerId,
         title: serviceType,
         description: notes,
         date: selectedSlot.day ? getDayDate(selectedSlot.day) : new Date().toISOString().split('T')[0],
@@ -128,14 +203,17 @@ const BookingModal: React.FC<BookingModalProps> = ({
         onBookingConfirm({
           id: appointmentId,
           ...appointmentData,
-          customer: `${selectedCustomer?.firstName} ${selectedCustomer?.lastName}`,
+          customer: customerName,
           service: serviceType
         });
 
         // Reset form
-        setSelectedCustomerId('');
+        setCustomerName('');
+        setCustomerEmail('');
+        setCustomerMobile('');
         setServiceType('');
         setNotes('');
+        setExistingCustomer(null);
         onClose();
       } else {
         throw new Error('Failed to create appointment');
@@ -184,25 +262,64 @@ const BookingModal: React.FC<BookingModalProps> = ({
             </div>
           )}
 
-          {/* Customer Selection */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              <UserIcon className="h-4 w-4 inline mr-1" />
-              Select Customer *
-            </label>
-            <select
-              value={selectedCustomerId}
-              onChange={(e) => setSelectedCustomerId(e.target.value)}
-              className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            >
-              <option value="">Choose a customer...</option>
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.firstName} {customer.lastName} - {customer.email}
-                </option>
-              ))}
-            </select>
+          {/* Customer Information */}
+          <div className="mb-6">
+            <h3 className="text-lg font-medium text-neutral-900 mb-4">Customer Information</h3>
+            
+            {/* Customer Name */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <UserIcon className="h-4 w-4 inline mr-1" />
+                Full Name *
+              </label>
+              <input
+                type="text"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter customer's full name"
+                required
+              />
+            </div>
+
+            {/* Customer Email */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <MailIcon className="h-4 w-4 inline mr-1" />
+                Email Address *
+              </label>
+              <input
+                type="email"
+                value={customerEmail}
+                onChange={(e) => setCustomerEmail(e.target.value)}
+                className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter customer's email address"
+                required
+              />
+              {checkingCustomer && (
+                <p className="text-sm text-blue-600 mt-1">Checking if customer exists...</p>
+              )}
+              {existingCustomer && (
+                <p className="text-sm text-green-600 mt-1">
+                  ✓ Existing customer found: {existingCustomer.firstName} {existingCustomer.lastName}
+                </p>
+              )}
+            </div>
+
+            {/* Customer Mobile */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <PhoneIcon className="h-4 w-4 inline mr-1" />
+                Mobile Number
+              </label>
+              <input
+                type="tel"
+                value={customerMobile}
+                onChange={(e) => setCustomerMobile(e.target.value)}
+                className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter customer's mobile number"
+              />
+            </div>
           </div>
 
           {/* Service Type */}

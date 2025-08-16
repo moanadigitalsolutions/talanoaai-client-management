@@ -5,12 +5,20 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit');
+    const email = searchParams.get('email');
     
-    const customers = customerQueries.getAll();
+    let customers = customerQueries.getAll() as any[];
+    
+    // Filter by email if provided
+    if (email) {
+      customers = customers.filter((customer: any) => 
+        customer.email && customer.email.toLowerCase() === email.toLowerCase()
+      );
+    }
     
     if (limit) {
       const limitNum = parseInt(limit, 10);
-      return NextResponse.json(customers.slice(0, limitNum));
+      customers = customers.slice(0, limitNum);
     }
     
     return NextResponse.json(customers);
@@ -44,7 +52,11 @@ export async function POST(request: NextRequest) {
 
     customerQueries.create(customer);
     
-    return NextResponse.json({ message: 'Customer created successfully', id: customerId }, { status: 201 });
+    return NextResponse.json({ 
+      message: 'Customer created successfully', 
+      id: customerId,
+      customer: customer 
+    }, { status: 201 });
   } catch (error) {
     console.error('Error creating customer:', error);
     return NextResponse.json({ error: 'Failed to create customer' }, { status: 500 });
