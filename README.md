@@ -1,23 +1,42 @@
-# TalanoaAI - Client Management PWA
+# TalanoaAI Client Management System
 
-A comprehensive Progressive Web Application (PWA) for managing clients with a professional Stripe-style design built with Next.js, TypeScript, and Tailwind CSS.
+A comprehensive client management and booking system built with Next.js 15, featuring dynamic scheduling, appointment booking, and customer management capabilities.
 
-## Features
+## 🚀 Live Demo
+
+**GitHub Repository:** [https://github.com/moanadigitalsolutions/talanoaai-client-management](https://github.com/moanadigitalsolutions/talanoaai-client-management)
+
+## ✨ Features
 
 ### 🏠 Dashboard
-- Overview cards showing key business metrics
-- Interactive charts displaying booking trends
-- Recent customers list
-- Upcoming appointments table
+- Real-time business metrics and KPIs
+- Interactive booking charts and analytics
+- Recent customers overview
+- Upcoming appointments tracking
+- Dynamic statistics with utilization rates
 
 ### 👥 Customer Management
-- Excel-style data table for customer information
-- Detailed customer profiles with personal data
-- Document upload and management
-- Activity notes and history tracking
+- Complete CRUD operations for customers
+- Detailed customer profiles with edit functionality
 - Customer search and filtering
+- Contact information management
+- Activity history tracking
 
-### 📅 Calendar
+### 📅 Booking System
+- **Interactive booking schedule** with weekly time slot view
+- **Dynamic time slot management** with configurable durations
+- **Real-time booking modal** with customer and service selection
+- **Instant updates** to schedule and statistics
+- **Service type management** (Consultation, Follow-up, Initial Meeting, Review, etc.)
+- **Time slot availability tracking** with proper status updates
+
+### ⚙️ Settings Management
+- **Dynamic default duration settings** (15, 30, 45, 60 minutes)
+- **Automatic time slot updates** when settings change
+- **Real-time synchronization** across all booking interfaces
+- Configurable business rules and preferences
+
+### � Calendar Integration
 - Interactive monthly calendar view
 - Event management (appointments, meetings, reminders)
 - Google Calendar and Outlook Calendar integration support
@@ -79,6 +98,49 @@ A comprehensive Progressive Web Application (PWA) for managing clients with a pr
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+
+## 🔧 Key Features Implemented
+
+### ✅ Booking System
+- **Dynamic time slot management** with configurable durations
+- **Real-time booking modal** with customer and service selection
+- **SQLite database integration** with proper boolean handling
+- **Instant schedule updates** and statistics refresh
+- **Service type selection** (Consultation, Follow-up, Initial Meeting, Review)
+
+### ✅ Settings Integration
+- **Dynamic default duration settings** (15, 30, 45, 60 minutes)
+- **Automatic time slot synchronization** when settings change
+- **Real-time updates** across all booking interfaces
+
+### ✅ Customer Management
+- **Complete CRUD operations** for customer data
+- **Edit functionality** with form validation
+- **Customer profiles** with detailed information
+
+### ✅ Dashboard Analytics
+- **Real-time statistics** (Total Bookings, Available Slots, Utilization Rate)
+- **Recent bookings table** with appointment details
+- **Dynamic metrics** that update with new bookings
+
+## 🚀 Recent Updates
+
+- **Fixed SQLite boolean binding issue** - Resolved booking creation errors
+- **Implemented complete booking workflow** - End-to-end appointment creation
+- **Enhanced debugging capabilities** - Comprehensive logging for troubleshooting
+- **Improved UI responsiveness** - Real-time updates and feedback
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📧 Contact
+
+For any questions or support, please contact [moanadigitalsolutions](https://github.com/moanadigitalsolutions).
 
 ## Project Structure
 
