@@ -6,12 +6,12 @@ export function formatDate(dateString: string | Date): string {
   try {
     const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
     
-    // Use consistent formatting that won't vary between server and client
-    return date.toLocaleDateString('en-US', {
+    // Use New Zealand date formatting (dd/mm/yyyy)
+    return date.toLocaleDateString('en-NZ', {
       year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-      timeZone: 'UTC'
+      month: '2-digit',
+      day: '2-digit',
+      timeZone: 'Pacific/Auckland'
     });
   } catch (error) {
     console.error('Error formatting date:', error);
@@ -23,13 +23,13 @@ export function formatDateTime(dateString: string | Date): string {
   try {
     const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
     
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('en-NZ', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      timeZone: 'UTC'
+      timeZone: 'Pacific/Auckland'
     });
   } catch (error) {
     console.error('Error formatting datetime:', error);
@@ -50,13 +50,13 @@ export function formatDateISO(dateString: string | Date): string {
 export function formatTime(dateString: string | Date): string {
   try {
     const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-    // Use UTC hours and minutes to avoid timezone issues
-    const hours = date.getUTCHours();
-    const minutes = date.getUTCMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const displayHours = hours % 12 || 12;
-    const displayMinutes = minutes.toString().padStart(2, '0');
-    return `${displayHours}:${displayMinutes} ${ampm}`;
+    // Use New Zealand timezone for time formatting
+    return date.toLocaleTimeString('en-NZ', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Pacific/Auckland'
+    });
   } catch (error) {
     console.error('Error formatting time:', error);
     return 'Invalid Time';

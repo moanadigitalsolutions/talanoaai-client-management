@@ -11,6 +11,7 @@ import {
 
 import BookingModal from '@/components/booking/BookingModal';
 import EditBookingModal from '@/components/booking/EditBookingModal';
+import { formatDate } from '@/lib/dateUtils';
 
 interface TimeSlot {
   id: string;
@@ -122,7 +123,7 @@ export default function BookingPage() {
             )}
             {weekRange.start && weekRange.end && (
               <span className="ml-2 px-2 py-1 bg-neutral-100 text-neutral-700 text-sm rounded border border-neutral-200">
-                Week: {weekRange.start} → {weekRange.end}
+                Week: {formatDate(weekRange.start)} → {formatDate(weekRange.end)}
               </span>
             )}
           </p>
@@ -164,7 +165,7 @@ export default function BookingPage() {
                 <div>
                   <label className="block text-xs font-medium text-neutral-600 mb-1">Day</label>
                   <select value={newSlot.day} onChange={e=>setNewSlot(s=>({...s, day:e.target.value}))} className="border px-2 py-1 rounded text-sm">
-                    {['Monday','Tuesday','Wednesday','Thursday','Friday'].map(d=> <option key={d}>{d}</option>)}
+                    {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d=> <option key={d}>{d}</option>)}
                   </select>
                 </div>
                 <div>
@@ -189,20 +190,20 @@ export default function BookingPage() {
           )}
           {/* Weekly Schedule */}
           <div className="slds-card overflow-hidden">
-            <div className="grid grid-cols-6 border-b border-neutral-200">
+            <div className="grid grid-cols-8 border-b border-neutral-200">
               <div className="p-4 bg-neutral-50 font-semibold text-neutral-600 uppercase tracking-wide text-sm">Time</div>
               {schedule.map((day) => (
                 <div key={day.day} className="p-4 bg-neutral-50 font-semibold text-neutral-600 uppercase tracking-wide text-sm text-center">
                   <div>{day.day}</div>
                   {day.dayDate && (
-                    <div className="text-[11px] font-normal text-neutral-500 normal-case">{day.dayDate}</div>
+                    <div className="text-[11px] font-normal text-neutral-500 normal-case">{formatDate(day.dayDate)}</div>
                   )}
                 </div>
               ))}
             </div>
 
             {/* Time slots grid */}
-            <div className="grid grid-cols-6">
+            <div className="grid grid-cols-8">
               {/* Time column */}
               <div className="border-r border-neutral-200">
                 {['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'].map((time) => (

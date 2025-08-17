@@ -8,6 +8,7 @@ import {
   CalendarIcon
 } from 'lucide-react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday } from 'date-fns';
+import { formatDate } from '@/lib/dateUtils';
 
 interface Event {
   id: number;
@@ -22,7 +23,7 @@ const mockEvents: Event[] = [
   {
     id: 1,
     title: 'Consultation with John Smith',
-    date: new Date(2024, 7, 16), // August 16, 2024
+    date: new Date(2025, 7, 18), // August 18, 2025 (Monday)
     time: '10:00 AM',
     type: 'appointment',
     customer: 'John Smith',
@@ -30,7 +31,7 @@ const mockEvents: Event[] = [
   {
     id: 2,
     title: 'Follow-up with Sarah Johnson',
-    date: new Date(2024, 7, 16),
+    date: new Date(2025, 7, 19), // August 19, 2025 (Tuesday)
     time: '2:30 PM',
     type: 'appointment',
     customer: 'Sarah Johnson',
@@ -38,14 +39,14 @@ const mockEvents: Event[] = [
   {
     id: 3,
     title: 'Team Meeting',
-    date: new Date(2024, 7, 17),
+    date: new Date(2025, 7, 20), // August 20, 2025 (Wednesday)
     time: '9:00 AM',
     type: 'meeting',
   },
   {
     id: 4,
     title: 'Review with Emily Davis',
-    date: new Date(2024, 7, 18),
+    date: new Date(2025, 7, 21), // August 21, 2025 (Thursday)
     time: '3:00 PM',
     type: 'appointment',
     customer: 'Emily Davis',
@@ -173,7 +174,7 @@ export default function CalendarPage() {
         <div className="slds-card">
           <div className="slds-card-header">
             <h3 className="text-lg font-semibold text-neutral-900">
-              {selectedDate ? format(selectedDate, 'EEEE, MMMM d') : 'Select a date'}
+              {selectedDate ? `${format(selectedDate, 'EEEE')}, ${formatDate(selectedDate)}` : 'Select a date'}
             </h3>
           </div>
           
@@ -204,7 +205,7 @@ export default function CalendarPage() {
               )}
               
               <button className="w-full mt-4 slds-button slds-button-brand">
-                Add Event for {format(selectedDate, 'MMM d')}
+                Add Event for {formatDate(selectedDate)}
               </button>
             </div>
           )}

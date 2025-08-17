@@ -11,25 +11,31 @@ export async function GET(request: NextRequest) {
     // Base template slots (day/time/duration). We ignore isAvailable & appointmentId for other weeks.
     const templateSlots = timeSlotQueries.getAll();
 
-    // Determine start of current week (Monday) in local time.
+    // Determine start of current week (Monday) in New Zealand timezone.
     const today = new Date();
-    const day = today.getDay(); // 0 Sun ... 6 Sat
+    // Convert to New Zealand timezone
+    const nzDate = new Date(today.toLocaleString("en-US", {timeZone: "Pacific/Auckland"}));
+    const day = nzDate.getDay(); // 0 Sun ... 6 Sat
     const diffToMonday = (day === 0 ? -6 : 1 - day); // move back to Monday
-    const monday = new Date(today);
+    const monday = new Date(nzDate);
     monday.setHours(0,0,0,0);
     monday.setDate(monday.getDate() + diffToMonday + weekOffset * 7);
 
-    const weekdays = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+    const weekdays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
     const dateMap: Record<string,string> = {};
     weekdays.forEach((wd, idx) => {
       const d = new Date(monday);
       d.setDate(monday.getDate() + idx);
-      dateMap[wd] = d.toISOString().split('T')[0];
+      // Use local NZ date string to avoid timezone issues
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      dateMap[wd] = `${year}-${month}-${day}`;
     });
 
   // Get appointments for the displayed week using range query
   const weekStart = dateMap['Monday'];
-  const weekEnd = dateMap['Friday'];
+  const weekEnd = dateMap['Sunday'];
   const appointments = (appointmentQueries as any).getRange ? (appointmentQueries as any).getRange(weekStart, weekEnd) : appointmentQueries.getAll();
   const apptIndex = new Map<string, any>();
   appointments.forEach((a:any) => apptIndex.set(`${a.date}|${a.time}`, a));
@@ -59,7 +65,7 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json({ weekOffset, days: scheduleArray, weekStart: dateMap['Monday'], weekEnd: dateMap['Friday'] });
+    return NextResponse.json({ weekOffset, days: scheduleArray, weekStart: dateMap['Monday'], weekEnd: dateMap['Sunday'] });
   } catch (error) {
     console.error('Error fetching time slots:', error);
     return NextResponse.json({ error: 'Failed to fetch time slots' }, { status: 500 });
