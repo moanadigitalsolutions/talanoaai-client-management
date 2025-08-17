@@ -81,19 +81,23 @@ export default function CustomerTable({ customers, onCustomerUpdate }: CustomerT
         <div className="flex items-center space-x-2">
           <Link 
             href={`/customers/${customer.id}`}
-            className="text-salesforce-600 hover:text-salesforce-700"
+            className="text-salesforce-600 hover:text-salesforce-700 p-1 rounded hover:bg-neutral-100"
           >
             <EyeIcon className="h-4 w-4" />
           </Link>
           <Link 
             href={`/customers/${customer.id}/edit`}
-            className="text-salesforce-600 hover:text-salesforce-700"
+            className="text-salesforce-600 hover:text-salesforce-700 p-1 rounded hover:bg-neutral-100"
           >
             <EditIcon className="h-4 w-4" />
           </Link>
           <button 
-            className="text-red-600 hover:text-red-700"
-            onClick={() => handleDeleteCustomer(customer.id)}
+            className="text-red-600 hover:text-red-700 p-1 rounded hover:bg-red-50"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleDeleteCustomer(customer.id);
+            }}
           >
             <TrashIcon className="h-4 w-4" />
           </button>

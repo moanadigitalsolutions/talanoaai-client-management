@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { customerQueries } from '@/lib/database';
+import { customerCreateSchema, parseOrError } from '@/lib/validation';
+import crypto from 'crypto';
 
 export async function GET(request: NextRequest) {
   try {
@@ -45,24 +47,16 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const parsed = parseOrError(customerCreateSchema, body);
+    if ('error' in parsed) {
+      return NextResponse.json({ error: 'Validation failed', details: parsed.error }, { status: 400 });
+    }
+    const dto = parsed.data;
     
-    // Generate customer ID
-    const customerId = `CUST${Date.now()}`;
+  // Generate collision-resistant customer ID
+  const customerId = `CUST_${crypto.randomUUID()}`;
     
-    const customer = {
-      id: customerId,
-      firstName: body.firstName,
-      lastName: body.lastName,
-      email: body.email,
-      mobile: body.mobile || '',
-      dateOfBirth: body.dateOfBirth || '',
-      address: body.address || '',
-      city: body.city || '',
-      state: body.state || '',
-      zipCode: body.zipCode || '',
-      status: body.status || 'active',
-      notes: body.notes || ''
-    };
+    const customer = { id: customerId, ...dto };
 
     customerQueries.create(customer);
     

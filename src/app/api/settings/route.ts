@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { settingsQueries, timeSlotQueries } from '@/lib/database';
+import { settingSchema, bulkSettingsSchema, parseOrError } from '@/lib/validation';
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,7 +29,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { key, value, category } = body;
+  const parsed = parseOrError(settingSchema, body);
+  if ('error' in parsed) return NextResponse.json({ error: 'Validation failed', details: parsed.error }, { status: 400 });
+  const { key, value, category } = parsed.data;
 
     if (!key || value === undefined || !category) {
       return NextResponse.json({ error: 'Missing required fields: key, value, category' }, { status: 400 });
@@ -47,11 +50,9 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { settings } = body;
-
-    if (!Array.isArray(settings)) {
-      return NextResponse.json({ error: 'Settings must be an array' }, { status: 400 });
-    }
+  const parsed = parseOrError(bulkSettingsSchema, body);
+  if ('error' in parsed) return NextResponse.json({ error: 'Validation failed', details: parsed.error }, { status: 400 });
+  const { settings } = parsed.data;
 
     // Update multiple settings in a transaction-like manner
     for (const setting of settings) {

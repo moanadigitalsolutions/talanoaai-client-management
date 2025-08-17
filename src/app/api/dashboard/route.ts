@@ -25,8 +25,9 @@ export async function GET(request: NextRequest) {
     const totalCustomers = customers.length;
     const activeCustomers = customers.filter(c => c.status === 'active').length;
     const totalAppointments = appointments.length;
-    const scheduledAppointments = appointments.filter(a => a.status === 'scheduled').length;
-    const completedAppointments = appointments.filter(a => a.status === 'completed').length;
+  const scheduledAppointments = appointments.filter(a => a.status === 'scheduled').length;
+  const completedAppointments = appointments.filter(a => a.status === 'completed').length;
+  const cancelledAppointments = appointments.filter(a => a.status === 'cancelled').length;
     
     // Calculate revenue (mock calculation)
     const monthlyRevenue = completedAppointments * 150; // $150 per appointment
@@ -86,6 +87,9 @@ export async function GET(request: NextRequest) {
         totalCustomers,
         activeCustomers,
         totalAppointments,
+        scheduledAppointments,
+        completedAppointments,
+        cancelledAppointments,
         monthlyRevenue
       },
       bookingTrends,

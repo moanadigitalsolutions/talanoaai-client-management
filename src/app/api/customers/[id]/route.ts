@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { customerQueries, activityNoteQueries, documentQueries } from '@/lib/database';
+import { customerUpdateSchema, parseOrError } from '@/lib/validation';
 
 export async function GET(
   request: NextRequest,
@@ -35,22 +36,11 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    
-    const customer = {
-      firstName: body.firstName,
-      lastName: body.lastName,
-      email: body.email,
-      mobile: body.mobile || '',
-      dateOfBirth: body.dateOfBirth || '',
-      address: body.address || '',
-      city: body.city || '',
-      state: body.state || '',
-      zipCode: body.zipCode || '',
-      status: body.status || 'active',
-      notes: body.notes || ''
-    };
-
-    customerQueries.update(id, customer);
+    const parsed = parseOrError(customerUpdateSchema, body);
+    if ('error' in parsed) {
+      return NextResponse.json({ error: 'Validation failed', details: parsed.error }, { status: 400 });
+    }
+    customerQueries.update(id, parsed.data);
     
     return NextResponse.json({ message: 'Customer updated successfully' });
   } catch (error) {

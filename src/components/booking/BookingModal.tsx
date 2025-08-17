@@ -15,6 +15,7 @@ interface TimeSlot {
   duration: number;
   isAvailable: boolean;
   day?: string;
+  date?: string; // concrete YYYY-MM-DD from API
 }
 
 interface BookingModalProps {
@@ -142,32 +143,11 @@ const BookingModal: React.FC<BookingModalProps> = ({
       // Create or get customer ID
       const customerId = await createOrUpdateCustomer();
       
-      // Get the date for the selected day
-      const getDayDate = (dayName: string) => {
-        const today = new Date();
-        const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-        const dayMap: { [key: string]: number } = {
-          'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 
-          'Thursday': 4, 'Friday': 5, 'Saturday': 6
-        };
-        
-        const targetDay = dayMap[dayName];
-        let daysUntilTarget = targetDay - currentDay;
-        
-        if (daysUntilTarget <= 0) {
-          daysUntilTarget += 7; // Next week
-        }
-        
-        const targetDate = new Date(today);
-        targetDate.setDate(today.getDate() + daysUntilTarget);
-        return targetDate.toISOString().split('T')[0];
-      };
-
       const appointmentData = {
         customerId: customerId,
         title: serviceType,
         description: notes,
-        date: selectedSlot.day ? getDayDate(selectedSlot.day) : new Date().toISOString().split('T')[0],
+  date: selectedSlot.date || new Date().toISOString().split('T')[0],
         time: selectedSlot.time,
         duration: selectedSlot.duration,
         service: serviceType,
@@ -187,18 +167,7 @@ const BookingModal: React.FC<BookingModalProps> = ({
         const result = await response.json();
         const appointmentId = result.id;
         
-        // Update the time slot to mark it as booked
-        await fetch('/api/time-slots', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            id: selectedSlot.id,
-            isAvailable: false,
-            appointmentId: appointmentId
-          }),
-        });
+  // Backend already marks slot unavailable; no duplicate update needed
 
         onBookingConfirm({
           id: appointmentId,

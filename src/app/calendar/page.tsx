@@ -218,13 +218,13 @@ export default function CalendarPage() {
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button className="flex items-center justify-center space-x-3 p-4 border border-neutral-300 rounded-lg hover:bg-neutral-50">
+            <button className="flex items-center justify-center space-x-3 p-4 border border-neutral-300 rounded-lg hover:bg-neutral-50 text-neutral-700">
               <div className="h-8 w-8 bg-blue-600 rounded flex items-center justify-center">
                 <CalendarIcon className="h-4 w-4 text-white" />
               </div>
               <span className="font-medium">Connect Google Calendar</span>
             </button>
-            <button className="flex items-center justify-center space-x-3 p-4 border border-neutral-300 rounded-lg hover:bg-neutral-50">
+            <button className="flex items-center justify-center space-x-3 p-4 border border-neutral-300 rounded-lg hover:bg-neutral-50 text-neutral-700">
               <div className="h-8 w-8 bg-blue-800 rounded flex items-center justify-center">
                 <CalendarIcon className="h-4 w-4 text-white" />
               </div>

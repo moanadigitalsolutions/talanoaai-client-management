@@ -300,6 +300,7 @@ export const customerQueries = {
     `).get(like, like, like) as any).count as number;
   },
   incrementTotalBookings: (id: string) => db.prepare('UPDATE customers SET totalBookings = totalBookings + 1, updatedAt = CURRENT_TIMESTAMP WHERE id = ?').run(id),
+  decrementTotalBookings: (id: string) => db.prepare('UPDATE customers SET totalBookings = CASE WHEN totalBookings > 0 THEN totalBookings - 1 ELSE 0 END, updatedAt = CURRENT_TIMESTAMP WHERE id = ?').run(id),
   create: (customer: any) => db.prepare(`
     INSERT INTO customers (id, firstName, lastName, email, mobile, dateOfBirth, address, city, state, zipCode, status, notes)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -318,7 +319,18 @@ export const appointmentQueries = {
     LEFT JOIN customers c ON a.customerId = c.id
     ORDER BY a.date DESC, a.time DESC
   `).all(),
-  getById: (id: string) => db.prepare('SELECT * FROM appointments WHERE id = ?').get(id),
+  getById: (id: string) => db.prepare(`
+    SELECT a.*, c.firstName, c.lastName, c.email
+    FROM appointments a
+    LEFT JOIN customers c ON a.customerId = c.id
+    WHERE a.id = ?
+  `).get(id),
+  getRange: (start: string, end: string) => db.prepare(`
+    SELECT a.*, c.firstName, c.lastName, c.email
+    FROM appointments a
+    LEFT JOIN customers c ON a.customerId = c.id
+    WHERE a.date BETWEEN ? AND ?
+  `).all(start, end),
   getByCustomer: (customerId: string) => db.prepare('SELECT * FROM appointments WHERE customerId = ? ORDER BY date DESC, time DESC').all(customerId),
   create: (appointment: any) => db.prepare(`
     INSERT INTO appointments (id, customerId, title, description, date, time, duration, status, service)
@@ -334,6 +346,10 @@ export const appointmentQueries = {
 export const timeSlotQueries = {
   getAll: () => db.prepare('SELECT * FROM time_slots ORDER BY day, time').all(),
   getByDay: (day: string) => db.prepare('SELECT * FROM time_slots WHERE day = ? ORDER BY time').all(day),
+  createIfNotExists: (day: string, time: string, duration: number) => db.prepare(`
+    INSERT OR IGNORE INTO time_slots (id, day, time, duration, isAvailable)
+    VALUES (?, ?, ?, ?, 1)
+  `).run(`slot_${day}_${time}`.replace(/[^A-Za-z0-9_]/g,'_'), day, time, duration),
   update: (id: string, isAvailable: boolean, appointmentId?: string) => db.prepare(`
     UPDATE time_slots SET isAvailable = ?, appointmentId = ?
     WHERE id = ?
@@ -345,8 +361,15 @@ export const timeSlotQueries = {
   updateAllAvailableDurations: (duration: number) => db.prepare(`
     UPDATE time_slots SET duration = ?
     WHERE isAvailable = true
-  `).run(duration)
+  `).run(duration),
+  releaseByAppointment: (appointmentId: string) => db.prepare(`
+    UPDATE time_slots SET isAvailable = 1, appointmentId = NULL
+    WHERE appointmentId = ?
+  `).run(appointmentId),
+  delete: (id: string) => db.prepare('DELETE FROM time_slots WHERE id = ?').run(id)
 };
+
+// Deleting a time slot template removes it from all future weeks (since templates generate schedule)
 
 export const activityNoteQueries = {
   getByCustomer: (customerId: string) => db.prepare('SELECT * FROM activity_notes WHERE customerId = ? ORDER BY date DESC, time DESC').all(customerId),

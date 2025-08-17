@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { appointmentQueries, timeSlotQueries, customerQueries } from '@/lib/database';
+import { appointmentCreateSchema, parseOrError } from '@/lib/validation';
+import crypto from 'crypto';
 
 interface Appointment {
   id: string;
@@ -53,22 +55,17 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const parsed = parseOrError(appointmentCreateSchema, body);
+    if ('error' in parsed) {
+      return NextResponse.json({ error: 'Validation failed', details: parsed.error }, { status: 400 });
+    }
+    const dto = parsed.data;
     console.log('Received appointment data:', body);
     
-    // Generate appointment ID
-    const appointmentId = `APPT${Date.now()}`;
+  // Generate collision-resistant appointment ID
+  const appointmentId = `APPT_${crypto.randomUUID()}`;
     
-  const appointment = {
-      id: appointmentId,
-      customerId: body.customerId,
-      title: body.title,
-      description: body.description || '',
-      date: body.date,
-      time: body.time,
-      duration: body.duration || 60,
-      status: body.status || 'scheduled',
-      service: body.service || ''
-    };
+  const appointment = { id: appointmentId, ...dto };
 
     console.log('Creating appointment:', appointment);
     
@@ -77,17 +74,9 @@ export async function POST(request: NextRequest) {
   try { customerQueries.incrementTotalBookings(appointment.customerId); } catch (e) { console.warn('Failed to increment booking count', e); }
     console.log('Appointment create result:', createResult);
     
-    // Update time slot availability if provided
-    if (body.timeSlotId) {
-      console.log('Updating time slot:', body.timeSlotId);
-      console.log('Parameters:', { timeSlotId: body.timeSlotId, isAvailable: false, appointmentId });
-      console.log('Parameter types:', { 
-        timeSlotId: typeof body.timeSlotId, 
-        isAvailable: typeof false, 
-        appointmentId: typeof appointmentId 
-      });
-      const updateResult = timeSlotQueries.update(body.timeSlotId, false, appointmentId);
-      console.log('Time slot update result:', updateResult);
+    // Update time slot availability if provided (single source of truth)
+    if (dto.timeSlotId) {
+      try { timeSlotQueries.update(dto.timeSlotId, false, appointmentId); } catch (e) { console.warn('Failed linking time slot', e); }
     }
     
   return NextResponse.json({ message: 'Appointment created successfully', id: appointmentId, dateTime: `${appointment.date}T${appointment.time}:00` }, { status: 201 });

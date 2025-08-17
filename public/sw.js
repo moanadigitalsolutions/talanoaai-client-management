@@ -1,4 +1,4 @@
-const CACHE_NAME = 'talanoaai-v1';
+const CACHE_NAME = 'talanoaai-v2';
 const urlsToCache = [
   '/',
   '/customers',

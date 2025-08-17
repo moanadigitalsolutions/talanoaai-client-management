@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeftIcon,
@@ -29,8 +29,8 @@ interface Customer {
   notes: string;
 }
 
-export default function CustomerDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [documents, setDocuments] = useState<any[]>([]);
   const [activityNotes, setActivityNotes] = useState<any[]>([]);
