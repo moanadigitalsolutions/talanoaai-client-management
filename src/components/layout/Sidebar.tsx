@@ -5,15 +5,12 @@ import { usePathname } from 'next/navigation';
 import { 
   HomeIcon, 
   UsersIcon, 
-  CalendarIcon, 
-  ClockIcon, 
   CogIcon 
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: HomeIcon },
   { name: 'Customers', href: '/customers', icon: UsersIcon },
-  { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
   { name: 'Settings', href: '/settings', icon: CogIcon },
 ];
 

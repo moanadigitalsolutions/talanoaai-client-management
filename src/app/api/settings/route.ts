@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { settingsQueries, timeSlotQueries } from '@/lib/database';
+import { settingsQueries } from '@/lib/database';
 import { settingSchema, bulkSettingsSchema, parseOrError } from '@/lib/validation';
 
 export async function GET(request: NextRequest) {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields: key, value, category' }, { status: 400 });
     }
 
-    settingsQueries.set(key, value, category);
+    settingsQueries.set(key, String(value), category);
     
     const updatedSetting = settingsQueries.get(key);
     return NextResponse.json(updatedSetting);
@@ -58,16 +58,7 @@ export async function PUT(request: NextRequest) {
     for (const setting of settings) {
       const { key, value, category } = setting;
       if (key && value !== undefined && category) {
-        settingsQueries.set(key, value, category);
-        
-        // Special handling for default duration changes
-        if (key === 'defaultDuration') {
-          const newDuration = parseInt(value);
-          if (!isNaN(newDuration) && newDuration > 0) {
-            // Update all available time slots to use the new default duration
-            timeSlotQueries.updateAllAvailableDurations(newDuration);
-          }
-        }
+        settingsQueries.set(key, String(value), category);
       }
     }
 

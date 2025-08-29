@@ -3,31 +3,20 @@
 import { useEffect, useState } from 'react';
 import { 
   UsersIcon, 
-  CalendarIcon, 
-  ClockIcon, 
-  TrendingUpIcon,
-  DollarSignIcon,
-  PhoneCallIcon
+  CogIcon
 } from 'lucide-react';
 import DashboardCard from '@/components/dashboard/DashboardCard';
 import RecentCustomers from '@/components/dashboard/RecentCustomers';
-import dynamic from 'next/dynamic';
-const BookingChart = dynamic(() => import('@/components/dashboard/BookingChart'), { ssr: false, loading: () => <div className="h-80 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-salesforce-600"></div></div> });
-import UpcomingAppointments from '@/components/dashboard/UpcomingAppointments';
 import ClientOnly from '@/components/common/ClientOnly';
 
 interface DashboardStats {
   totalCustomers: number;
   activeCustomers: number;
-  totalAppointments: number;
-  monthlyRevenue: number;
 }
 
 interface DashboardData {
   stats: DashboardStats;
-  bookingTrends: any[];
   recentCustomers: any[];
-  upcomingAppointments: any[];
 }
 
 export default function Dashboard() {
@@ -126,25 +115,11 @@ export default function Dashboard() {
       icon: UsersIcon,
     },
     {
-      title: 'This Month Bookings',
-      value: (dashboardData.stats.totalAppointments || 0).toString(),
-      change: '+5%',
-      changeType: 'positive' as const,
-      icon: CalendarIcon,
-    },
-    {
       title: 'Active Customers',
       value: (dashboardData.stats.activeCustomers || 0).toString(),
-      change: '-3%',
-      changeType: 'negative' as const,
-      icon: ClockIcon,
-    },
-    {
-      title: 'Monthly Revenue',
-      value: `$${(dashboardData.stats.monthlyRevenue || 0).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`,
-      change: '+18%',
+      change: '+8%',
       changeType: 'positive' as const,
-      icon: DollarSignIcon,
+      icon: CogIcon,
     },
   ] : [];
 
@@ -177,30 +152,7 @@ export default function Dashboard() {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Chart Section - Takes 2 columns on xl screens */}
-          <div className="xl:col-span-2">
-            <div className="bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow">
-              <div className="p-6 border-b border-neutral-100">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-neutral-900">Business Analytics</h3>
-                  <div className="flex items-center space-x-2 text-xs text-neutral-500">
-                    <span>8 months</span>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6">
-                <ClientOnly fallback={
-                  <div className="h-80 flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-salesforce-600"></div>
-                  </div>
-                }>
-                  <BookingChart data={dashboardData?.bookingTrends || []} />
-                </ClientOnly>
-              </div>
-            </div>
-          </div>
-          
+        <div className="grid grid-cols-1 xl:grid-cols-1 gap-6">
           {/* Recent Customers */}
           <div className="bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow">
             <div className="p-6 border-b border-neutral-100">
@@ -224,42 +176,6 @@ export default function Dashboard() {
                 <RecentCustomers />
               </ClientOnly>
             </div>
-          </div>
-        </div>
-
-        {/* Upcoming Appointments */}
-        <div className="bg-white rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow">
-          <div className="p-6 border-b border-neutral-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-neutral-900">Upcoming Appointments</h3>
-                <p className="text-sm text-neutral-600 mt-1">Next 5 scheduled appointments</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse"></div>
-                <span className="text-xs text-neutral-500">5 pending</span>
-              </div>
-            </div>
-          </div>
-          <div className="p-6">
-            <ClientOnly fallback={
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="animate-pulse flex items-center justify-between p-4 border border-neutral-100 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="h-8 w-8 bg-neutral-200 rounded-full"></div>
-                      <div className="space-y-2">
-                        <div className="h-4 bg-neutral-200 rounded w-32"></div>
-                        <div className="h-3 bg-neutral-200 rounded w-24"></div>
-                      </div>
-                    </div>
-                    <div className="h-6 bg-neutral-200 rounded w-20"></div>
-                  </div>
-                ))}
-              </div>
-            }>
-              <UpcomingAppointments />
-            </ClientOnly>
           </div>
         </div>
       </div>

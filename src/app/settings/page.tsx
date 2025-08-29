@@ -85,7 +85,6 @@ export default function SettingsPage() {
   
   const tabs = [
     { id: 'profile', label: 'Profile', icon: UserIcon },
-    { id: 'booking', label: 'Booking Settings', icon: ClockIcon },
     { id: 'calendar', label: 'Calendar Integration', icon: CalendarIcon },
     { id: 'notifications', label: 'Notifications', icon: BellIcon },
     { id: 'security', label: 'Security', icon: ShieldIcon },
@@ -124,14 +123,6 @@ export default function SettingsPage() {
         <div className="flex-1 slds-card">
           <div className="p-6">
             {activeTab === 'profile' && <ProfileSettings />}
-            {activeTab === 'booking' && <BookingSettings 
-              settings={settings}
-              getSettingValue={getSettingValue}
-              updateSetting={updateSetting}
-              saveSettings={saveSettings}
-              loading={loading}
-              saveSuccess={saveSuccess}
-            />}
             {activeTab === 'calendar' && <CalendarSettings />}
             {activeTab === 'notifications' && <NotificationSettings />}
             {activeTab === 'security' && <SecuritySettings />}
@@ -213,86 +204,11 @@ function ProfileSettings() {
   );
 }
 
-function BookingSettings({ 
-  settings, 
-  getSettingValue, 
-  updateSetting, 
-  saveSettings, 
-  loading, 
-  saveSuccess 
-}: {
-  settings: Setting[];
-  getSettingValue: (key: string) => string;
-  updateSetting: (key: string, value: string, category: string) => void;
-  saveSettings: (category: string) => Promise<void>;
-  loading: boolean;
-  saveSuccess: boolean;
-}) {
-  return (
-    <div className="space-y-6">
-      <h2 className="text-lg font-semibold text-neutral-900">Booking Maintenance</h2>
-      
-      {saveSuccess && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-green-800 text-sm">Settings saved successfully!</p>
-        </div>
-      )}
-      
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-semibold text-neutral-600 uppercase tracking-wide mb-2">
-            Default Appointment Duration (minutes)
-          </label>
-          <select 
-            className="slds-input" 
-            value={getSettingValue('defaultDuration') || '60'}
-            onChange={(e) => updateSetting('defaultDuration', e.target.value, 'booking')}
-            data-testid="setting-default-duration"
-            aria-label="Default appointment duration"
-          >
-            <option value="30">30 minutes</option>
-            <option value="60">60 minutes</option>
-            <option value="90">90 minutes</option>
-            <option value="120">120 minutes</option>
-          </select>
-        </div>
-        
-        <div>
-          <label className="block text-sm font-semibold text-neutral-600 uppercase tracking-wide mb-2">
-            Buffer Time Between Appointments (minutes)
-          </label>
-          <select 
-            className="slds-input" 
-            value={getSettingValue('bufferTime') || '15'}
-            onChange={(e) => updateSetting('bufferTime', e.target.value, 'booking')}
-            data-testid="setting-buffer-time"
-            aria-label="Buffer time between appointments"
-          >
-            <option value="0">No buffer</option>
-            <option value="15">15 minutes</option>
-            <option value="30">30 minutes</option>
-          </select>
-        </div>
-      </div>
-      
-      <button 
-        onClick={() => saveSettings('booking')}
-        disabled={loading}
-        className="slds-button slds-button-brand flex items-center space-x-2 disabled:opacity-50"
-        data-testid="save-booking-settings"
-      >
-        <SaveIcon className="h-4 w-4" />
-        <span>{loading ? 'Saving...' : 'Save Settings'}</span>
-      </button>
-    </div>
-  );
-}
-
 function CalendarSettings() {
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-neutral-900">Calendar Integration</h2>
-      <p className="text-neutral-600">Connect your calendar for seamless booking management.</p>
+      <p className="text-neutral-600">Connect your calendar for seamless scheduling and organization.</p>
     </div>
   );
 }

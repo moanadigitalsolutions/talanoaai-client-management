@@ -19,20 +19,6 @@ export const customerCreateSchema = z.object({
 
 export const customerUpdateSchema = customerCreateSchema.partial();
 
-export const appointmentCreateSchema = z.object({
-  customerId: z.string().min(1),
-  title: z.string().min(1),
-  description: z.string().optional().default(''),
-  date: z.string().regex(dateRegex),
-  time: z.string().regex(timeRegex),
-  duration: z.number().int().positive().max(24*60).optional().default(60),
-  status: z.enum(['scheduled','completed','cancelled']).optional().default('scheduled'),
-  service: z.string().optional().default(''),
-  timeSlotId: z.string().optional()
-});
-
-export const appointmentUpdateSchema = appointmentCreateSchema.partial();
-
 export const activityNoteCreateSchema = z.object({
   customerId: z.string().min(1),
   type: z.string().min(1),
@@ -51,14 +37,7 @@ export const bulkSettingsSchema = z.object({
   settings: z.array(settingSchema)
 });
 
-export const timeSlotUpdateSchema = z.object({
-  id: z.string().min(1),
-  isAvailable: z.boolean(),
-  appointmentId: z.string().nullable().optional()
-});
-
 export type CustomerCreateInput = z.infer<typeof customerCreateSchema>;
-export type AppointmentCreateInput = z.infer<typeof appointmentCreateSchema>;
 
 export function parseOrError<T>(schema: z.ZodSchema<T>, data: unknown) {
   const result = schema.safeParse(data);

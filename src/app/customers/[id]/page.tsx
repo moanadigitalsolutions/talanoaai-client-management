@@ -25,7 +25,6 @@ interface Customer {
   joinDate: string;
   dateOfBirth: string;
   status: 'active' | 'inactive';
-  totalBookings: number;
   notes: string;
 }
 
@@ -46,8 +45,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
         const data = await res.json();
         setCustomer({
           ...data.customer,
-          joinDate: data.customer.createdAt,
-          totalBookings: data.customer.totalBookings || 0
+          joinDate: data.customer.createdAt
         });
         setDocuments(data.documents || []);
         setActivityNotes(data.activityNotes || []);
@@ -156,10 +154,6 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
               </p>
             </div>
             <div>
-              <label className="text-sm font-semibold text-neutral-600 uppercase tracking-wide">Total Bookings</label>
-              <p className="text-sm font-bold text-neutral-900 mt-1">{customer.totalBookings}</p>
-            </div>
-            <div>
               <label className="text-sm font-semibold text-neutral-600 uppercase tracking-wide">Notes</label>
               <p className="text-sm text-neutral-900 mt-1">{customer.notes}</p>
             </div>
@@ -217,11 +211,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
               {activityNotes.map((note) => (
                 <div key={note.id} className="p-3 border border-neutral-200 rounded">
                   <div className="flex items-center justify-between mb-2">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      note.type === 'appointment' 
-                        ? 'bg-blue-100 text-blue-800' 
-                        : 'bg-neutral-100 text-neutral-800'
-                    }`}>
+                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-neutral-100 text-neutral-800">
                       {note.type}
                     </span>
                     <span className="text-xs text-neutral-500">{note.date} at {note.time}</span>

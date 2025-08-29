@@ -17,7 +17,6 @@ interface Customer {
   email: string;
   mobile: string;
   status: 'active' | 'inactive';
-  totalBookings: number;
   createdAt: string;
 }
 
@@ -70,9 +69,6 @@ export default function CustomerTable({ customers, onCustomerUpdate }: CustomerT
         }`}>
           {customer.status}
         </span>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-900">
-        {customer.totalBookings}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-xs text-neutral-900">
         {formatDate(customer.createdAt)}
@@ -130,9 +126,6 @@ export default function CustomerTable({ customers, onCustomerUpdate }: CustomerT
             </th>
             <th className="px-6 py-3 text-left text-xs font-bold text-neutral-700 uppercase tracking-wider">
               Status
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-bold text-neutral-700 uppercase tracking-wider">
-              Bookings
             </th>
             <th className="px-6 py-3 text-left text-xs font-bold text-neutral-700 uppercase tracking-wider">
               Join Date

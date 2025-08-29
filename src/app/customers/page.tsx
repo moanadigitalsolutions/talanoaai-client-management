@@ -21,7 +21,6 @@ interface Customer {
   email: string;
   mobile: string;
   status: 'active' | 'inactive';
-  totalBookings: number;
   createdAt: string;
 }
 
