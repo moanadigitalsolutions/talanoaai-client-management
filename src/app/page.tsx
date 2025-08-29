@@ -195,7 +195,7 @@ export default function Dashboard() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-salesforce-600"></div>
                   </div>
                 }>
-                  <BookingChart />
+                  <BookingChart data={dashboardData?.bookingTrends || []} />
                 </ClientOnly>
               </div>
             </div>

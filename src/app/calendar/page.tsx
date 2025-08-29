@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   ChevronLeftIcon, 
   ChevronRightIcon,
@@ -10,53 +10,69 @@ import {
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday } from 'date-fns';
 import { formatDate } from '@/lib/dateUtils';
 
+interface Appointment {
+  id: string;
+  customerId: string;
+  firstName?: string;
+  lastName?: string;
+  title: string;
+  date: string;
+  time: string;
+  duration: number;
+  status: string;
+  service?: string;
+}
+
 interface Event {
-  id: number;
+  id: string;
   title: string;
   date: Date;
   time: string;
   type: 'appointment' | 'meeting' | 'reminder';
   customer?: string;
+  status: string;
 }
-
-const mockEvents: Event[] = [
-  {
-    id: 1,
-    title: 'Consultation with John Smith',
-    date: new Date(2025, 7, 18), // August 18, 2025 (Monday)
-    time: '10:00 AM',
-    type: 'appointment',
-    customer: 'John Smith',
-  },
-  {
-    id: 2,
-    title: 'Follow-up with Sarah Johnson',
-    date: new Date(2025, 7, 19), // August 19, 2025 (Tuesday)
-    time: '2:30 PM',
-    type: 'appointment',
-    customer: 'Sarah Johnson',
-  },
-  {
-    id: 3,
-    title: 'Team Meeting',
-    date: new Date(2025, 7, 20), // August 20, 2025 (Wednesday)
-    time: '9:00 AM',
-    type: 'meeting',
-  },
-  {
-    id: 4,
-    title: 'Review with Emily Davis',
-    date: new Date(2025, 7, 21), // August 21, 2025 (Thursday)
-    time: '3:00 PM',
-    type: 'appointment',
-    customer: 'Emily Davis',
-  },
-];
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [events] = useState<Event[]>(mockEvents);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
+
+  const fetchAppointments = async () => {
+    try {
+      const response = await fetch('/api/appointments');
+      if (response.ok) {
+        const data = await response.json();
+        setAppointments(data);
+        
+        // Convert appointments to events format
+        const eventsData: Event[] = data.map((appointment: Appointment) => ({
+          id: appointment.id,
+          title: appointment.title,
+          date: new Date(appointment.date),
+          time: appointment.time,
+          type: 'appointment' as const,
+          customer: appointment.firstName && appointment.lastName 
+            ? `${appointment.firstName} ${appointment.lastName}` 
+            : undefined,
+          status: appointment.status
+        }));
+        setEvents(eventsData);
+      } else {
+        console.error('Failed to fetch appointments');
+      }
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -67,6 +83,16 @@ export default function CalendarPage() {
   };
 
   const selectedDateEvents = selectedDate ? getEventsForDate(selectedDate) : [];
+
+  if (loading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-salesforce-600"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">

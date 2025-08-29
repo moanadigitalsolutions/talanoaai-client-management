@@ -17,20 +17,24 @@ import {
 import { useState } from 'react';
 import { TrendingUpIcon, BarChart3Icon, LineChartIcon } from 'lucide-react';
 
-const data = [
-  { name: 'Jan', bookings: 65, revenue: 4200, customers: 45 },
-  { name: 'Feb', bookings: 78, revenue: 5100, customers: 52 },
-  { name: 'Mar', bookings: 90, revenue: 5850, customers: 62 },
-  { name: 'Apr', bookings: 81, revenue: 5265, customers: 58 },
-  { name: 'May', bookings: 95, revenue: 6175, customers: 68 },
-  { name: 'Jun', bookings: 89, revenue: 5785, customers: 64 },
-  { name: 'Jul', bookings: 103, revenue: 6695, customers: 72 },
-  { name: 'Aug', bookings: 97, revenue: 6305, customers: 69 },
+const defaultData = [
+  { name: 'Jan', bookings: 0, revenue: 0, customers: 0 },
+  { name: 'Feb', bookings: 0, revenue: 0, customers: 0 },
+  { name: 'Mar', bookings: 0, revenue: 0, customers: 0 },
+  { name: 'Apr', bookings: 0, revenue: 0, customers: 0 },
+  { name: 'May', bookings: 0, revenue: 0, customers: 0 },
+  { name: 'Jun', bookings: 0, revenue: 0, customers: 0 },
+  { name: 'Jul', bookings: 0, revenue: 0, customers: 0 },
+  { name: 'Aug', bookings: 0, revenue: 0, customers: 0 },
 ];
 
 type ChartType = 'area' | 'bar' | 'line';
 
-export default function BookingChart() {
+interface BookingChartProps {
+  data?: any[];
+}
+
+export default function BookingChart({ data = defaultData }: BookingChartProps) {
   const [chartType, setChartType] = useState<ChartType>('area');
 
   const formatTooltipValue = (value: number, name: string) => {

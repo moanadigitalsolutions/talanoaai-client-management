@@ -101,15 +101,6 @@ export function initializeDatabase() {
     )
   `);
 
-  // Insert default time slots for the week
-  insertDefaultTimeSlots();
-  
-  // Insert default settings
-  insertDefaultSettings();
-  
-  // Insert sample data if database is empty
-  insertSampleData();
-
   // Create indexes after tables & seed
   createIndexes();
 }
