@@ -3,7 +3,6 @@ const urlsToCache = [
   '/',
   '/customers',
   '/calendar',
-  '/booking',
   '/settings',
   '/manifest.json',
 ];

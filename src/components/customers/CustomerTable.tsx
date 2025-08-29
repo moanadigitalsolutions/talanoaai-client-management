@@ -47,7 +47,7 @@ export default function CustomerTable({ customers, onCustomerUpdate }: CustomerT
   }, [onCustomerUpdate]);
 
   const rows = useMemo(() => customers.map((customer) => (
-    <tr key={customer.id} className="hover:bg-neutral-50">
+    <tr key={customer.id} className="hover:bg-neutral-50" data-testid="customer-row">
       <td className="px-6 py-4 whitespace-nowrap text-xs font-medium text-neutral-900">
         {customer.id}
       </td>
@@ -82,12 +82,14 @@ export default function CustomerTable({ customers, onCustomerUpdate }: CustomerT
           <Link 
             href={`/customers/${customer.id}`}
             className="text-salesforce-600 hover:text-salesforce-700 p-1 rounded hover:bg-neutral-100"
+            data-testid="view-customer"
           >
             <EyeIcon className="h-4 w-4" />
           </Link>
           <Link 
             href={`/customers/${customer.id}/edit`}
             className="text-salesforce-600 hover:text-salesforce-700 p-1 rounded hover:bg-neutral-100"
+            data-testid="edit-customer"
           >
             <EditIcon className="h-4 w-4" />
           </Link>
@@ -98,6 +100,9 @@ export default function CustomerTable({ customers, onCustomerUpdate }: CustomerT
               e.stopPropagation();
               handleDeleteCustomer(customer.id);
             }}
+            data-testid="delete-customer"
+            aria-label="Delete customer"
+            title="Delete customer"
           >
             <TrashIcon className="h-4 w-4" />
           </button>
@@ -108,7 +113,7 @@ export default function CustomerTable({ customers, onCustomerUpdate }: CustomerT
 
   return (
     <div className="overflow-x-auto">
-      <table className="slds-table">
+  <table className="slds-table" data-testid="customer-table">
         <thead>
           <tr>
             <th className="px-6 py-3 text-left text-xs font-bold text-neutral-700 uppercase tracking-wider">

@@ -198,8 +198,8 @@ const BookingModal: React.FC<BookingModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" data-testid="booking-modal-overlay">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4" data-testid="booking-modal">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-neutral-200">
           <h2 className="text-xl font-semibold text-neutral-900">Book Appointment</h2>
@@ -237,11 +237,12 @@ const BookingModal: React.FC<BookingModalProps> = ({
             
             {/* Customer Name */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label htmlFor="customer-name" className="block text-sm font-medium text-neutral-700 mb-2">
                 <UserIcon className="h-4 w-4 inline mr-1" />
                 Full Name *
               </label>
               <input
+                id="customer-name"
                 type="text"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
@@ -253,11 +254,12 @@ const BookingModal: React.FC<BookingModalProps> = ({
 
             {/* Customer Email */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label htmlFor="customer-email" className="block text-sm font-medium text-neutral-700 mb-2">
                 <MailIcon className="h-4 w-4 inline mr-1" />
                 Email Address *
               </label>
               <input
+                id="customer-email"
                 type="email"
                 value={customerEmail}
                 onChange={(e) => setCustomerEmail(e.target.value)}
@@ -277,11 +279,12 @@ const BookingModal: React.FC<BookingModalProps> = ({
 
             {/* Customer Mobile */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label htmlFor="customer-mobile" className="block text-sm font-medium text-neutral-700 mb-2">
                 <PhoneIcon className="h-4 w-4 inline mr-1" />
                 Mobile Number
               </label>
               <input
+                id="customer-mobile"
                 type="tel"
                 value={customerMobile}
                 onChange={(e) => setCustomerMobile(e.target.value)}
@@ -293,10 +296,11 @@ const BookingModal: React.FC<BookingModalProps> = ({
 
           {/* Service Type */}
           <div className="mb-4">
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <label htmlFor="service-type" className="block text-sm font-medium text-neutral-700 mb-2">
               Service Type *
             </label>
             <select
+              id="service-type"
               value={serviceType}
               onChange={(e) => setServiceType(e.target.value)}
               className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -314,10 +318,11 @@ const BookingModal: React.FC<BookingModalProps> = ({
 
           {/* Notes */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <label htmlFor="appointment-notes" className="block text-sm font-medium text-neutral-700 mb-2">
               Notes (Optional)
             </label>
             <textarea
+              id="appointment-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}

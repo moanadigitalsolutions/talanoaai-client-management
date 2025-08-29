@@ -22,13 +22,8 @@ A comprehensive client management and booking system built with Next.js 15, feat
 - Contact information management
 - Activity history tracking
 
-### 📅 Booking System
-- **Interactive booking schedule** with weekly time slot view
-- **Dynamic time slot management** with configurable durations
-- **Real-time booking modal** with customer and service selection
-- **Instant updates** to schedule and statistics
-- **Service type management** (Consultation, Follow-up, Initial Meeting, Review, etc.)
-- **Time slot availability tracking** with proper status updates
+### 📅 (Booking System Removed)
+The previous interactive booking schedule and modal-based appointment workflow have been removed. References remain in historical commits and can be reintroduced in a future availability engine redesign.
 
 ### ⚙️ Settings Management
 - **Dynamic default duration settings** (15, 30, 45, 60 minutes)
@@ -42,11 +37,8 @@ A comprehensive client management and booking system built with Next.js 15, feat
 - Google Calendar and Outlook Calendar integration support
 - Event details sidebar
 
-### 📋 Booking System
-- Weekly schedule management (Monday-Friday)
-- Time slot availability tracking
-- Booking statistics and utilization rates
-- Recent bookings management
+### 📋 (Booking System Removed)
+Legacy weekly schedule, slot tracking, and booking statistics have been deprecated pending a redesigned availability engine.
 
 ### ⚙️ Settings
 - **Profile Management**: Personal and business information
@@ -101,12 +93,8 @@ A comprehensive client management and booking system built with Next.js 15, feat
 
 ## 🔧 Key Features Implemented
 
-### ✅ Booking System
-- **Dynamic time slot management** with configurable durations
-- **Real-time booking modal** with customer and service selection
-- **SQLite database integration** with proper boolean handling
-- **Instant schedule updates** and statistics refresh
-- **Service type selection** (Consultation, Follow-up, Initial Meeting, Review)
+### ✅ (Booking System Removed)
+The earlier booking-specific capabilities were intentionally removed. They will be replaced by a more robust availability engine and modular scheduling API in future iterations.
 
 ### ✅ Settings Integration
 - **Dynamic default duration settings** (15, 30, 45, 60 minutes)
@@ -125,10 +113,7 @@ A comprehensive client management and booking system built with Next.js 15, feat
 
 ## 🚀 Recent Updates
 
-- **Fixed SQLite boolean binding issue** - Resolved booking creation errors
-- **Implemented complete booking workflow** - End-to-end appointment creation
-- **Enhanced debugging capabilities** - Comprehensive logging for troubleshooting
-- **Improved UI responsiveness** - Real-time updates and feedback
+Recent updates related to booking have been superseded by feature removal. Future changelogs will reference the new availability architecture once introduced.
 
 ## 📝 License
 
@@ -147,7 +132,7 @@ For any questions or support, please contact [moanadigitalsolutions](https://git
 ```
 src/
 ├── app/                    # Next.js App Router pages
-│   ├── booking/           # Booking management
+│   ├── (booking removed)
 │   ├── calendar/          # Calendar and events
 │   ├── customers/         # Customer management
 │   │   └── [id]/         # Individual customer pages
@@ -182,11 +167,8 @@ src/
 - Integration placeholders for Google Calendar and Outlook
 - Event creation and management
 
-### Booking Schedule
-- Visual weekly grid (Monday-Friday)
-- Color-coded availability (available vs booked)
-- Booking statistics and utilization tracking
-- Time slot management
+### (Booking Schedule Removed)
+Legacy grid removed; a new schedule/availability visualization will be designed.
 
 ## Design System
 

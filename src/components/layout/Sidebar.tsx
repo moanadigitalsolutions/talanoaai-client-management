@@ -14,7 +14,6 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: HomeIcon },
   { name: 'Customers', href: '/customers', icon: UsersIcon },
   { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
-  { name: 'Booking', href: '/booking', icon: ClockIcon },
   { name: 'Settings', href: '/settings', icon: CogIcon },
 ];
 

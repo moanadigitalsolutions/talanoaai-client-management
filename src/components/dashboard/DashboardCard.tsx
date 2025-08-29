@@ -18,7 +18,10 @@ export default function DashboardCard({
   const ChangeIcon = changeType === 'positive' ? TrendingUpIcon : TrendingDownIcon;
   
   return (
-    <div className="relative overflow-hidden bg-white rounded-xl border border-neutral-200 hover:border-neutral-300 transition-all duration-200 group hover:shadow-lg">
+    <div
+      className="relative overflow-hidden bg-white rounded-xl border border-neutral-200 hover:border-neutral-300 transition-all duration-200 group hover:shadow-lg"
+      data-testid={`dashboard-card-${title.toLowerCase().replace(/[^a-z0-9]+/g,'-')}`}
+    >
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-neutral-50/50"></div>
       
@@ -28,7 +31,10 @@ export default function DashboardCard({
             <div className="flex items-center space-x-2">
               <p className="text-sm font-semibold text-neutral-600 uppercase tracking-wide">{title}</p>
             </div>
-            <p className="text-3xl font-bold text-neutral-900 mt-3 mb-4 group-hover:text-salesforce-600 transition-colors">
+            <p
+              className="text-3xl font-bold text-neutral-900 mt-3 mb-4 group-hover:text-salesforce-600 transition-colors"
+              data-testid="card-value"
+            >
               {value}
             </p>
             <div className="flex items-center space-x-2">

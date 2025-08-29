@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   CalendarIcon, 
   ClockIcon,
@@ -108,6 +108,12 @@ export default function BookingPage() {
     setShowBookingModal(false);
   };
 
+  const allTimes = useMemo(() => {
+    const set = new Set<string>();
+    schedule.forEach(day => day.timeSlots.forEach(s => set.add(s.time)));
+    return Array.from(set).sort();
+  }, [schedule]);
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -132,23 +138,28 @@ export default function BookingPage() {
           <button
             onClick={() => setManageMode(m=>!m)}
             className={`px-3 py-2 text-sm border rounded ${manageMode? 'bg-neutral-800 text-white border-neutral-800':'border-neutral-300 hover:bg-neutral-50 text-neutral-700'}`}
+            data-testid="toggle-manage-mode"
           >{manageMode? 'Done':'Manage'}</button>
           <button
             onClick={() => setShowAddSlot(v => !v)}
             className="px-3 py-2 text-sm border border-neutral-300 rounded hover:bg-neutral-50 text-neutral-700"
+            data-testid="toggle-add-slot"
           >{showAddSlot ? 'Cancel' : 'Add Slot'}</button>
           <button
             onClick={() => { setLoading(true); setWeekOffset(o => o - 1); }}
             className="px-3 py-2 text-sm border border-neutral-300 rounded hover:bg-neutral-50 text-neutral-700"
+            data-testid="prev-week"
           >Prev Week</button>
           <button
             onClick={() => { setLoading(true); setWeekOffset(0); }}
             className="px-3 py-2 text-sm border border-neutral-300 rounded hover:bg-neutral-50 text-neutral-700 disabled:text-neutral-400"
             disabled={weekOffset === 0}
+            data-testid="this-week"
           >This Week</button>
           <button
             onClick={() => { setLoading(true); setWeekOffset(o => o + 1); }}
             className="px-3 py-2 text-sm border border-neutral-300 rounded hover:bg-neutral-50 text-neutral-700"
+            data-testid="next-week"
           >Next Week</button>
         </div>
       </div>
@@ -160,21 +171,21 @@ export default function BookingPage() {
       ) : (
         <>
           {showAddSlot && (
-            <div className="slds-card mb-4">
+            <div className="slds-card mb-4" data-testid="add-slot-form">
               <div className="p-4 flex flex-wrap items-end gap-4">
                 <div>
                   <label className="block text-xs font-medium text-neutral-600 mb-1">Day</label>
-                  <select value={newSlot.day} onChange={e=>setNewSlot(s=>({...s, day:e.target.value}))} className="border px-2 py-1 rounded text-sm">
+                  <select value={newSlot.day} onChange={e=>setNewSlot(s=>({...s, day:e.target.value}))} className="border px-2 py-1 rounded text-sm" data-testid="slot-day" aria-label="Slot day">
                     {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d=> <option key={d}>{d}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-neutral-600 mb-1">Time</label>
-                  <input value={newSlot.time} onChange={e=>setNewSlot(s=>({...s, time:e.target.value}))} className="border px-2 py-1 rounded text-sm w-24" />
+                  <input value={newSlot.time} onChange={e=>setNewSlot(s=>({...s, time:e.target.value}))} className="border px-2 py-1 rounded text-sm w-24" data-testid="slot-time" aria-label="Slot time" placeholder="HH:MM" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-neutral-600 mb-1">Duration (min)</label>
-                  <input type="number" value={newSlot.duration} onChange={e=>setNewSlot(s=>({...s, duration:parseInt(e.target.value)||60}))} className="border px-2 py-1 rounded text-sm w-28" />
+                  <input type="number" value={newSlot.duration} onChange={e=>setNewSlot(s=>({...s, duration:parseInt(e.target.value)||60}))} className="border px-2 py-1 rounded text-sm w-28" data-testid="slot-duration" aria-label="Slot duration" placeholder="Minutes" />
                 </div>
                 <button
                   onClick={async ()=>{
@@ -184,16 +195,18 @@ export default function BookingPage() {
                     } catch(e){ console.error(e); }
                   }}
                   className="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                  data-testid="save-slot"
                 >Save Slot</button>
               </div>
             </div>
           )}
-          {/* Weekly Schedule */}
-          <div className="slds-card overflow-hidden">
-            <div className="grid grid-cols-8 border-b border-neutral-200">
-              <div className="p-4 bg-neutral-50 font-semibold text-neutral-600 uppercase tracking-wide text-sm">Time</div>
-              {schedule.map((day) => (
-                <div key={day.day} className="p-4 bg-neutral-50 font-semibold text-neutral-600 uppercase tracking-wide text-sm text-center">
+          {/* Weekly Schedule (refactored) */}
+          <div className="slds-card overflow-hidden" role="table" aria-label="Weekly booking schedule">
+            {/* Header row */}
+            <div role="row" className="grid [grid-template-columns:120px_repeat(7,1fr)]">
+              <div role="columnheader" className="p-4 bg-neutral-50 font-semibold text-neutral-600 uppercase tracking-wide text-sm border-b border-neutral-200">Time</div>
+              {schedule.map(day => (
+                <div role="columnheader" key={day.day} className="p-4 bg-neutral-50 font-semibold text-neutral-600 uppercase tracking-wide text-sm text-center border-b border-neutral-200">
                   <div>{day.day}</div>
                   {day.dayDate && (
                     <div className="text-[11px] font-normal text-neutral-500 normal-case">{formatDate(day.dayDate)}</div>
@@ -202,64 +215,54 @@ export default function BookingPage() {
               ))}
             </div>
 
-            {/* Time slots grid */}
-            <div className="grid grid-cols-8">
-              {/* Time column */}
-              <div className="border-r border-neutral-200">
-                {['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'].map((time) => (
-                  <div key={time} className="p-4 border-b border-neutral-200 text-sm text-neutral-600 font-medium">
-                    {time}
-                  </div>
-                ))}
-              </div>
-
-              {/* Day columns */}
-              {schedule.map((day) => (
-                <div key={day.day} className="border-r border-neutral-200">
-                  {day.timeSlots.map((slot) => {
+            {/* Body rows */}
+            <div role="rowgroup">
+              {allTimes.map(time => (
+                // eslint-disable-next-line react/style-prop-object
+                <div key={time} role="row" className="grid [grid-template-columns:120px_repeat(7,1fr)]">
+                  {/* Time cell */}
+                  <div role="rowheader" className="p-4 border-b border-neutral-200 text-sm text-neutral-600 font-medium min-h-[64px] flex items-center">{time}</div>
+                  {/* Day cells */}
+                  {schedule.map(day => {
+                    const slot = day.timeSlots.find(s => s.time === time);
+                    if(!slot){
+                      return <div key={day.day+time} role="cell" className="p-4 border-b border-neutral-200 min-h-[64px] bg-neutral-25" />;
+                    }
                     const past = (()=>{
                       if(!slot.date) return false;
                       const dt = new Date(`${slot.date}T${slot.time}:00`);
                       return dt.getTime() < Date.now();
                     })();
+                    const stateClasses = past ? 'bg-neutral-50 text-neutral-400 cursor-not-allowed' : slot.isAvailable ? 'hover:bg-green-50 bg-green-25' : 'bg-red-50 hover:bg-red-100';
                     return (
-                    <div
-                      key={slot.id}
-                      onClick={() => { if(!past && !manageMode) handleSlotClick({...slot, day: day.day}); }}
-                      className={`
-                        p-4 border-b border-neutral-200 cursor-pointer transition-colors min-h-[64px]
-                        ${past ? 'bg-neutral-50 text-neutral-400 cursor-not-allowed' : slot.isAvailable 
-                          ? 'hover:bg-green-50 bg-green-25' 
-                          : 'bg-red-50 hover:bg-red-100'}
-                      `}
-                    >
-                      {slot.isAvailable ? (
-                        <div className="text-center relative">
-                          {manageMode && !past && (
-                            <button
-                              onClick={async (e)=>{
-                                e.stopPropagation();
-                                if(!confirm('Delete this slot template?')) return;
-                                try {
-                                  const res = await fetch(`/api/time-slots?id=${encodeURIComponent(slot.id)}`, { method:'DELETE' });
-                                  if(res.ok) fetchSchedule();
-                                } catch(err){ console.error(err); }
-                              }}
-                              className="absolute top-1 right-1 text-red-600 hover:text-red-800"
-                              title="Delete slot"
-                            >×</button>
-                          )}
-                          <div className={`text-sm font-medium ${past ? 'text-neutral-400' : 'text-green-600'}`}>{past ? 'Past' : 'Available'}</div>
-                          <div className="text-xs text-neutral-500">{slot.duration || defaultDuration}min</div>
-                        </div>
-                      ) : (
-                        <div className="text-center">
-                          <div className="text-sm font-medium text-neutral-900">{slot.customer}</div>
-                          <div className="text-xs text-neutral-600">{slot.service}</div>
-                          <div className="text-xs text-neutral-500">{slot.duration || defaultDuration}min</div>
-                        </div>
-                      )}
-                    </div>
+                      <button
+                        key={slot.id}
+                        role="cell"
+                        aria-label={`${day.day} ${time} ${slot.isAvailable ? 'Available' : slot.customer || 'Booked'}`}
+                        onClick={() => { if(!past && !manageMode) handleSlotClick({...slot, day: day.day}); }}
+                        disabled={past}
+                        data-testid="time-slot"
+                        data-available={slot.isAvailable ? 'true' : 'false'}
+                        data-day={day.day}
+                        data-time={slot.time}
+                        className={`relative w-full h-full text-left p-4 border-b border-neutral-200 min-h-[64px] transition-colors ${stateClasses} ${past ? '' : 'cursor-pointer'}`}
+                      >
+                        {slot.isAvailable ? (
+                          <div className="text-center">
+                            {manageMode && !past && (
+                              <span className="absolute top-1 right-2 text-[10px] text-neutral-400">ID:{slot.id.slice(0,4)}</span>
+                            )}
+                            <div className={`text-sm font-medium ${past ? 'text-neutral-400' : 'text-green-600'}`}>{past ? 'Past' : 'Available'}</div>
+                            <div className="text-xs text-neutral-500">{slot.duration || defaultDuration}min</div>
+                          </div>
+                        ) : (
+                          <div className="text-center">
+                            <div className="text-sm font-medium text-neutral-900 truncate" title={slot.customer}>{slot.customer}</div>
+                            <div className="text-xs text-neutral-600 truncate" title={slot.service}>{slot.service}</div>
+                            <div className="text-xs text-neutral-500">{slot.duration || defaultDuration}min</div>
+                          </div>
+                        )}
+                      </button>
                     );
                   })}
                 </div>

@@ -247,6 +247,8 @@ function BookingSettings({
             className="slds-input" 
             value={getSettingValue('defaultDuration') || '60'}
             onChange={(e) => updateSetting('defaultDuration', e.target.value, 'booking')}
+            data-testid="setting-default-duration"
+            aria-label="Default appointment duration"
           >
             <option value="30">30 minutes</option>
             <option value="60">60 minutes</option>
@@ -263,6 +265,8 @@ function BookingSettings({
             className="slds-input" 
             value={getSettingValue('bufferTime') || '15'}
             onChange={(e) => updateSetting('bufferTime', e.target.value, 'booking')}
+            data-testid="setting-buffer-time"
+            aria-label="Buffer time between appointments"
           >
             <option value="0">No buffer</option>
             <option value="15">15 minutes</option>
@@ -275,6 +279,7 @@ function BookingSettings({
         onClick={() => saveSettings('booking')}
         disabled={loading}
         className="slds-button slds-button-brand flex items-center space-x-2 disabled:opacity-50"
+        data-testid="save-booking-settings"
       >
         <SaveIcon className="h-4 w-4" />
         <span>{loading ? 'Saving...' : 'Save Settings'}</span>
