@@ -1,6 +1,6 @@
 # TalanoaAI Client Management System
 
-A comprehensive client management and booking system built with Next.js 15, featuring dynamic scheduling, appointment booking, and customer management capabilities.
+A comprehensive customer management system built with Next.js 15, featuring customer profiles, activity tracking, document management, and business analytics.
 
 ## 🚀 Live Demo
 
@@ -10,66 +10,68 @@ A comprehensive client management and booking system built with Next.js 15, feat
 
 ### 🏠 Dashboard
 - Real-time business metrics and KPIs
-- Interactive booking charts and analytics
+- Customer analytics and statistics
 - Recent customers overview
-- Upcoming appointments tracking
-- Dynamic statistics with utilization rates
+- Activity tracking and insights
+- Dynamic statistics with customer engagement rates
 
 ### 👥 Customer Management
 - Complete CRUD operations for customers
 - Detailed customer profiles with edit functionality
-- Customer search and filtering
-- Contact information management
-- Activity history tracking
+- Customer search and filtering with pagination
+- Contact information and personal details management
+- Activity notes and history tracking
+- Document upload and management per customer
 
-### 📅 (Booking System Removed)
-The previous interactive booking schedule and modal-based appointment workflow have been removed. References remain in historical commits and can be reintroduced in a future availability engine redesign.
+### 📄 Document Management
+- Secure document storage per customer
+- File upload with metadata tracking
+- Document organization and retrieval
+- File type validation and size limits
+
+### 📝 Activity Notes
+- Customer interaction tracking
+- Note categorization (meeting, note, etc.)
+- Date and time stamped entries
+- Activity history timeline
 
 ### ⚙️ Settings Management
-- **Dynamic default duration settings** (15, 30, 45, 60 minutes)
-- **Automatic time slot updates** when settings change
-- **Real-time synchronization** across all booking interfaces
-- Configurable business rules and preferences
+- Profile management for business information
+- Working hours configuration
+- Notification preferences
+- Security settings and user management
+- General application preferences
 
-### � Calendar Integration
-- Interactive monthly calendar view
-- Event management (appointments, meetings, reminders)
-- Google Calendar and Outlook Calendar integration support
-- Event details sidebar
-
-### 📋 (Booking System Removed)
-Legacy weekly schedule, slot tracking, and booking statistics have been deprecated pending a redesigned availability engine.
-
-### ⚙️ Settings
-- **Profile Management**: Personal and business information
-- **Booking Settings**: Working hours, appointment duration, buffer times
-- **Calendar Integration**: Google and Outlook calendar sync
-- **Notifications**: Email and push notification preferences
-- **Security**: Password changes and 2FA setup
-- **General Settings**: Timezone, date/time formats, currency
+### 📊 Analytics & Reporting
+- Customer statistics and trends
+- Activity metrics and engagement tracking
+- Business performance insights
+- Data visualization with interactive charts
 
 ## Technology Stack
 
 - **Framework**: Next.js 15.4.6 with App Router
 - **Language**: TypeScript
+- **Database**: SQLite with better-sqlite3
 - **Styling**: Tailwind CSS
 - **Charts**: Recharts
 - **Icons**: Lucide React
 - **Date Handling**: date-fns
 - **PWA**: Service Worker for offline functionality
+- **Validation**: Zod schemas
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 
 ### Installation
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
-   cd talanoaai
+   git clone https://github.com/moanadigitalsolutions/talanoaai-client-management.git
+   cd talanoaai-client-management
    ```
 
 2. Install dependencies:
@@ -93,27 +95,34 @@ Legacy weekly schedule, slot tracking, and booking statistics have been deprecat
 
 ## 🔧 Key Features Implemented
 
-### ✅ (Booking System Removed)
-The earlier booking-specific capabilities were intentionally removed. They will be replaced by a more robust availability engine and modular scheduling API in future iterations.
-
-### ✅ Settings Integration
-- **Dynamic default duration settings** (15, 30, 45, 60 minutes)
-- **Automatic time slot synchronization** when settings change
-- **Real-time updates** across all booking interfaces
-
-### ✅ Customer Management
+### ✅ Customer Management System
 - **Complete CRUD operations** for customer data
-- **Edit functionality** with form validation
-- **Customer profiles** with detailed information
+- **Advanced search and filtering** with pagination
+- **Customer profiles** with comprehensive information
+- **Activity notes tracking** with categorization
+- **Document management** per customer
 
 ### ✅ Dashboard Analytics
-- **Real-time statistics** (Total Bookings, Available Slots, Utilization Rate)
-- **Recent bookings table** with appointment details
-- **Dynamic metrics** that update with new bookings
+- **Real-time customer statistics** and metrics
+- **Activity tracking** and engagement insights
+- **Recent customers overview** with quick access
+- **Business performance indicators**
+
+### ✅ Document Management
+- **Secure file uploads** with validation
+- **Document organization** by customer
+- **File metadata tracking** (name, size, upload date)
+- **Document retrieval** and management
+
+### ✅ Settings & Configuration
+- **Business profile management**
+- **Working hours configuration**
+- **Notification preferences**
+- **Security settings**
 
 ## 🚀 Recent Updates
 
-Recent updates related to booking have been superseded by feature removal. Future changelogs will reference the new availability architecture once introduced.
+**Latest Update (August 2025)**: Complete removal of booking system to focus on core customer management functionality. The application now provides a streamlined, customer-centric experience with enhanced document management and activity tracking capabilities.
 
 ## 📝 License
 
@@ -132,18 +141,35 @@ For any questions or support, please contact [moanadigitalsolutions](https://git
 ```
 src/
 ├── app/                    # Next.js App Router pages
-│   ├── (booking removed)
-│   ├── calendar/          # Calendar and events
-│   ├── customers/         # Customer management
-│   │   └── [id]/         # Individual customer pages
+│   ├── customers/         # Customer management pages
+│   │   ├── page.tsx      # Customer list with search/filter
+│   │   ├── [id]/         # Individual customer pages
+│   │   │   ├── page.tsx  # Customer detail view
+│   │   │   └── edit/     # Customer edit functionality
 │   ├── settings/         # Application settings
+│   │   └── page.tsx      # Settings management
+│   ├── api/              # API routes
+│   │   ├── customers/    # Customer CRUD operations
+│   │   ├── dashboard/    # Dashboard data and analytics
+│   │   ├── documents/    # Document management
+│   │   ├── activity-notes/ # Activity tracking
+│   │   └── settings/     # Settings management
 │   ├── globals.css       # Global styles
-│   ├── layout.tsx        # Root layout
+│   ├── layout.tsx        # Root layout with navigation
 │   └── page.tsx          # Dashboard (home page)
-└── components/            # Reusable components
-    ├── dashboard/        # Dashboard specific components
-    ├── customers/        # Customer management components
-    └── layout/           # Layout components (Sidebar, etc.)
+├── components/            # Reusable React components
+│   ├── common/           # Shared components
+│   ├── customers/        # Customer-specific components
+│   ├── dashboard/        # Dashboard widgets and charts
+│   └── layout/           # Layout components (Sidebar, etc.)
+├── lib/                  # Utility libraries
+│   ├── database.ts       # SQLite database operations
+│   ├── dateUtils.ts      # Date formatting utilities
+│   ├── validation.ts     # Zod validation schemas
+│   └── seed-database.ts  # Database seeding (removed)
+└── public/               # Static assets
+    ├── icons/           # PWA icons
+    └── manifest.json    # PWA manifest
 ```
 
 ## PWA Features
@@ -156,19 +182,28 @@ src/
 ## Key Components
 
 ### Customer Data Table
-- Displays customer ID, name, contact info, join date, bookings, and status
+- Displays customer ID, name, contact info, status, and join date
 - Clickable rows for detailed customer view
-- Search and filter functionality
+- Search and filter functionality with pagination
 - Actions: View, Edit, Delete
 
-### Calendar Integration
-- Monthly calendar view with event visualization
-- Event types: appointments, meetings, reminders
-- Integration placeholders for Google Calendar and Outlook
-- Event creation and management
+### Customer Detail View
+- Comprehensive customer information display
+- Activity notes timeline
+- Document management interface
+- Edit customer information
 
-### (Booking Schedule Removed)
-Legacy grid removed; a new schedule/availability visualization will be designed.
+### Dashboard Overview
+- Customer statistics and metrics
+- Recent customer activity
+- Business performance indicators
+- Quick access to key functions
+
+### Document Management
+- File upload interface with drag-and-drop
+- Document listing with metadata
+- File type validation and size limits
+- Secure storage and retrieval
 
 ## Design System
 
@@ -177,16 +212,22 @@ Legacy grid removed; a new schedule/availability visualization will be designed.
 - **Cards**: Subtle shadows and rounded corners
 - **Tables**: Stripe-style design with hover effects
 - **Forms**: Clean input designs with focus states
+- **Navigation**: Intuitive sidebar navigation
 
 ## Future Enhancements
 
-- Real-time calendar synchronization
-- Email/SMS notifications
-- Payment processing integration
-- Advanced reporting and analytics
-- Multi-user support
-- API integration for external services
-- Mobile app version
+- Advanced customer segmentation and filtering
+- Email/SMS notifications for customer interactions
+- Customer communication history and templates
+- Advanced reporting and analytics dashboard
+- Document versioning and collaboration features
+- Customer portal for self-service access
+- API integration for external CRM systems
+- Mobile app version with offline capabilities
+- Bulk customer operations and data import/export
+- Customer satisfaction surveys and feedback
+- Automated customer follow-up workflows
+- Integration with popular business tools (Slack, Zapier, etc.)
 
 ## Contributing
 
@@ -196,10 +237,18 @@ Legacy grid removed; a new schedule/availability visualization will be designed.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
+## 📝 License
 
 This project is licensed under the MIT License.
 
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📧 Contact
+
+For any questions or support, please contact [moanadigitalsolutions](https://github.com/moanadigitalsolutions).
+
 ---
 
-Built with ❤️ for efficient client management
+Built with ❤️ for efficient customer management
